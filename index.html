@@ -563,7 +563,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v4.2 · JSON Metadata Scanner</div>
+        <div class="badge-version">v5.0 · Deep Scanner Engine</div>
     </div>
 
     <!-- Developer ID Card -->
@@ -575,7 +575,7 @@
         <div class="developer-input-wrapper">
             <input type="text" id="userIdInput" placeholder="例: najm_dev_001" dir="ltr">
             <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
-            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح المشاريع</button>
+            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع</button>
         </div>
         <div id="userIdStatus" class="id-status"></div>
     </div>
@@ -656,7 +656,7 @@
                 <span>📁</span> <span>مشاريعي المستضافة</span>
             </div>
             <div id="projectsGrid" class="projects-grid">
-                <div class="empty-state">✨ قم بحفظ معرف المطور واضغط "مسح المشاريع" لعرض مشاريعك</div>
+                <div class="empty-state">✨ قم بحفظ معرف المطور واضغط "مسح عميق للمشاريع" لعرض مشاريعك</div>
             </div>
         </div>
     </div>
@@ -684,32 +684,19 @@
     function decodeHtmlEntities(text) {
         if (!text) return '';
         
-        // Create a temporary textarea element for robust decoding
         const textarea = document.createElement('textarea');
         textarea.innerHTML = text;
         let decoded = textarea.value;
         
-        // Additional manual replacements for edge cases
         const replacements = {
-            '&lt;': '<',
-            '&gt;': '>',
-            '&amp;': '&',
-            '&quot;': '"',
-            '&#39;': "'",
-            '&#x27;': "'",
-            '&#x2F;': '/',
-            '&#x60;': '`',
-            '&apos;': "'",
-            '&nbsp;': ' ',
-            '&#34;': '"',
-            '&#38;': '&',
-            '&#60;': '<',
-            '&#62;': '>'
+            '&lt;': '<', '&gt;': '>', '&amp;': '&', '&quot;': '"',
+            '&#39;': "'", '&#x27;': "'", '&#x2F;': '/', '&#x60;': '`',
+            '&apos;': "'", '&nbsp;': ' ', '&#34;': '"', '&#38;': '&',
+            '&#60;': '<', '&#62;': '>'
         };
         
         for (const [entity, char] of Object.entries(replacements)) {
-            const regex = new RegExp(entity, 'g');
-            decoded = decoded.replace(regex, char);
+            decoded = decoded.replace(new RegExp(entity, 'g'), char);
         }
         
         return decoded;
@@ -717,24 +704,17 @@
 
     // ==================== Extract JSON from METADATA Block ====================
     function extractMetadataJSON(content) {
-        // Pattern to find content between ---METADATA--- markers
         const metadataPattern = /---\s*METADATA\s*---\s*([\s\S]*?)\s*---\s*METADATA\s*---/i;
         const match = metadataPattern.exec(content);
         
         if (!match) return null;
         
         let jsonStr = match[1].trim();
-        
-        // Clean HTML tags from the JSON string
         jsonStr = jsonStr.replace(/<[^>]*>/g, '');
-        
-        // Decode HTML entities
         jsonStr = decodeHtmlEntities(jsonStr);
         
-        // Try to parse JSON
         try {
-            const metadata = JSON.parse(jsonStr);
-            return metadata;
+            return JSON.parse(jsonStr);
         } catch (e) {
             console.warn('Failed to parse metadata JSON:', e);
             return null;
@@ -769,7 +749,6 @@
     function extractEnvVarsFromMessage(content) {
         const envVars = {};
         
-        // Pattern for key-value pairs with 🔑 emoji
         const envPattern = /🔑\s*<b>([^<]+)<\/b>\s*<code>([^<]+)<\/code>/gi;
         let envMatch;
         while ((envMatch = envPattern.exec(content)) !== null) {
@@ -780,7 +759,6 @@
             }
         }
         
-        // Alternative pattern for environment variables
         const altEnvPattern = /<b>([A-Z_]+)<\/b>\s*<code>([^<]+)<\/code>/gi;
         while ((envMatch = altEnvPattern.exec(content)) !== null) {
             const key = decodeHtmlEntities(envMatch[1].trim());
@@ -793,106 +771,160 @@
         return envVars;
     }
 
-    // ==================== Enhanced Telegram Scanning with JSON Metadata ====================
-    async function scanTelegramProjects(userId) {
-        if (!userId) return [];
+    // ==================== Fetch Single Page with Cache Breaking ====================
+    async function fetchTelegramPage(beforeId = null) {
+        const baseUrl = 'https://t.me/s/nejm_njm';
+        let url = baseUrl;
+        if (beforeId) {
+            url = `${baseUrl}?before=${beforeId}`;
+        }
+        // Add cache breaker
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_cb=${Date.now()}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.text();
+    }
+
+    // ==================== Extract Message ID from HTML ====================
+    function extractMessageId(content) {
+        const idMatch = content.match(/data-post="([^"]+)"/i);
+        return idMatch ? idMatch[1] : null;
+    }
+
+    // ==================== Extract All Projects from HTML Page ====================
+    function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
+        const projects = [];
+        const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
+        let match;
         
-        showProgress(true);
-        addSystemLog('🔍 جاري مسح قناة التليجرام للبحث عن مشاريعك...');
-        
-        try {
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const response = await fetch(proxyUrl + encodeURIComponent('https://t.me/s/nejm_njm'));
-            const html = await response.text();
+        while ((match = messagePattern.exec(html)) !== null) {
+            const content = match[1];
+            const metadata = extractMetadataJSON(content);
             
-            addSystemLog('📡 تم استلام البيانات من القناة، جاري التحليل باستخدام JSON Metadata...');
-            
-            const projects = [];
-            
-            // Pattern to capture each message
-            const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
-            let match;
-            let processedCount = 0;
-            
-            while ((match = messagePattern.exec(html)) !== null) {
-                const content = match[1];
+            if (metadata && metadata.uid === targetUserId) {
+                const projectName = metadata.pid;
                 
-                // Extract JSON metadata from ---METADATA--- block
-                const metadata = extractMetadataJSON(content);
-                
-                if (metadata && metadata.uid === userId) {
-                    processedCount++;
+                if (projectName) {
+                    let code = extractCodeFromMessage(content);
+                    if (!code && metadata.code) {
+                        code = decodeHtmlEntities(metadata.code);
+                    }
                     
-                    // Get project name from metadata (pid field)
-                    const projectName = metadata.pid;
+                    let envVars = extractEnvVarsFromMessage(content);
+                    if (metadata.env && typeof metadata.env === 'object') {
+                        envVars = { ...envVars, ...metadata.env };
+                    }
                     
-                    if (projectName) {
-                        // Extract code from message
-                        let code = extractCodeFromMessage(content);
-                        
-                        // If no code found, check if code is in metadata
-                        if (!code && metadata.code) {
-                            code = decodeHtmlEntities(metadata.code);
-                        }
-                        
-                        // Extract environment variables
-                        let envVars = extractEnvVarsFromMessage(content);
-                        
-                        // If metadata contains env vars, merge them
-                        if (metadata.env && typeof metadata.env === 'object') {
-                            envVars = { ...envVars, ...metadata.env };
-                        }
-                        
-                        projects.push({
-                            name: projectName,
-                            code: code,
-                            envVars: envVars,
-                            url: `https://vercelseifr.vercel.app/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`,
-                            metadata: metadata
-                        });
-                        
-                        addSystemLog(`📦 تم العثور على مشروع: ${projectName}`, false, false);
+                    const projectData = {
+                        name: projectName,
+                        code: code,
+                        envVars: envVars,
+                        url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`,
+                        metadata: metadata
+                    };
+                    
+                    projects.push(projectData);
+                    
+                    // If searching for specific project and found it, return immediately
+                    if (targetProjectId && projectName === targetProjectId) {
+                        return { projects: [projectData], lastMessageId: null, found: true };
                     }
                 }
             }
+        }
+        
+        // Extract the last message ID for pagination
+        const lastMessageMatch = html.match(/<div class="tgme_widget_message"[^>]*data-post="([^"]+)"/i);
+        let lastMessageId = null;
+        if (lastMessageMatch) {
+            const parts = lastMessageMatch[1].split('/');
+            lastMessageId = parts[parts.length - 1];
+        }
+        
+        return { projects, lastMessageId, found: false };
+    }
+
+    // ==================== DEEP SCANNER: Recursive Pagination ====================
+    async function deepScanTelegram(userId, targetProjectId = null, maxDepth = 5) {
+        const allProjects = [];
+        let currentBeforeId = null;
+        let depth = 0;
+        let foundTarget = false;
+        
+        addSystemLog(`🔍 بدء المسح العميق (Deep Scan) للمطور: ${userId}${targetProjectId ? ` | مشروع مستهدف: ${targetProjectId}` : ''}`);
+        
+        while (depth < maxDepth && !foundTarget) {
+            depth++;
+            addSystemLog(`📡 الصفحة ${depth} من ${maxDepth}... جاري التحليل`, false, false);
             
-            addSystemLog(`✅ تم العثور على ${projects.length} مشروع للمطور ${userId}`, false, true);
-            showProgress(false);
+            try {
+                const html = await fetchTelegramPage(currentBeforeId);
+                const { projects, lastMessageId, found } = extractProjectsFromPage(html, userId, targetProjectId);
+                
+                if (targetProjectId && found) {
+                    addSystemLog(`🎯 تم العثور على المشروع المستهدف "${targetProjectId}" في الصفحة ${depth}`, false, true);
+                    return projects;
+                }
+                
+                allProjects.push(...projects);
+                
+                // If no more messages, break
+                if (!lastMessageId || lastMessageId === currentBeforeId) {
+                    addSystemLog(`📭 تم الوصول لنهاية الرسائل بعد ${depth} صفحة`, false, false);
+                    break;
+                }
+                
+                currentBeforeId = lastMessageId;
+                
+                // Small delay to be respectful
+                await delay(300);
+                
+            } catch (error) {
+                addSystemLog(`⚠️ خطأ في جلب الصفحة ${depth}: ${error.message}`, true);
+                break;
+            }
+        }
+        
+        addSystemLog(`✅ اكتمل المسح العميق. تم العثور على ${allProjects.length} مشروع للمطور ${userId}`, false, true);
+        return allProjects;
+    }
+
+    // ==================== Main Scan Function (Entry Point) ====================
+    async function scanTelegramProjects(userId, specificProjectName = null) {
+        if (!userId) return [];
+        
+        showProgress(true);
+        
+        try {
+            const projects = await deepScanTelegram(userId, specificProjectName, 5);
             return projects;
-            
         } catch (error) {
             console.error('Scan error:', error);
-            addSystemLog(`❌ فشل مسح المشاريع: ${error.message}`, true);
-            showProgress(false);
+            addSystemLog(`❌ فشل المسح العميق: ${error.message}`, true);
             return [];
+        } finally {
+            showProgress(false);
         }
     }
 
     // ==================== Reset Edit Mode ====================
     function resetEditMode() {
-        // Clear edit mode state
         currentEditProject = null;
-        
-        // Reset form fields
         document.getElementById('projectName').value = '';
         document.getElementById('codeInput').value = '';
         
-        // Clear environment variables container and add default row
         const envContainer = document.getElementById('envVarsContainer');
         envContainer.innerHTML = '';
         envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
         
-        // Reset deploy button
         const deployBtn = document.getElementById('deployBtn');
         deployBtn.innerHTML = '<span>🚀</span> نشر المشروع الآن';
-        
-        // Hide cancel button and edit badge
         document.getElementById('cancelEditBtn').style.display = 'none';
         document.getElementById('editModeBadge').innerHTML = '';
         
-        // Update line numbers
         updateLineNumbers();
-        
         addSystemLog('✖️ تم إلغاء وضع التعديل وتفريغ الحقول', false, false);
     }
 
@@ -934,17 +966,15 @@
         }
         
         showProgress(true);
-        addSystemLog(`🔍 جاري جلب بيانات المشروع: ${projectName}`);
+        addSystemLog(`🔍 جاري البحث العميق عن المشروع: ${projectName}`);
         
-        const projects = await scanTelegramProjects(userId);
+        const projects = await scanTelegramProjects(userId, projectName);
         const project = projects.find(p => p.name === projectName);
         
         if (project) {
             document.getElementById('projectName').value = project.name;
-            // Use enhanced decoding for code
             document.getElementById('codeInput').value = decodeHtmlEntities(project.code);
             
-            // Clear and repopulate env vars with proper decoding
             const envContainer = document.getElementById('envVarsContainer');
             envContainer.innerHTML = '';
             Object.entries(project.envVars).forEach(([key, value], idx) => {
@@ -956,7 +986,6 @@
             
             currentEditProject = projectName;
             
-            // Update UI for edit mode
             const deployBtn = document.getElementById('deployBtn');
             deployBtn.innerHTML = '<span>🔄</span> تحديث المشروع';
             document.getElementById('cancelEditBtn').style.display = 'flex';
@@ -965,12 +994,10 @@
             addSystemLog(`✅ تم تحميل المشروع "${projectName}" للمحرر`, false, true);
             updateLineNumbers();
         } else {
-            addSystemLog(`❌ لم يتم العثور على المشروع "${projectName}"`, true);
+            addSystemLog(`❌ لم يتم العثور على المشروع "${projectName}" بعد البحث العميق`, true);
         }
         
         showProgress(false);
-        
-        // Switch to editor tab
         document.querySelector('[data-tab="editor"]').click();
     };
 
@@ -1037,11 +1064,8 @@
                 `;
                 
                 addToHistory(projectName, userId, 'success', 'نشر ناجح');
-                
-                // Reset edit mode after successful deploy
                 resetEditMode();
                 
-                // Refresh projects after deploy
                 const updatedProjects = await scanTelegramProjects(userId);
                 projectsCache = updatedProjects;
                 renderProjects(projectsCache);
@@ -1286,15 +1310,14 @@
     loadStoredUserId();
     loadHistory();
     
-    // Initialize env rows
     const envContainer = document.getElementById('envVarsContainer');
     envContainer.innerHTML = '';
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود
-console.log("Najm Cloud - Professional Hosting Platform");
+        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود v5.0
+console.log("Najm Cloud - Deep Scanner Engine Active");
 
 // يمكنك كتابة كود JavaScript أو Python هنا
 // يدعم النظام المتغيرات البيئية والسجلات المباشرة
@@ -1302,6 +1325,7 @@ console.log("Najm Cloud - Professional Hosting Platform");
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
+        version: "5.0",
         status: "active",
         timestamp: new Date().toISOString()
     }), {
