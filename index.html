@@ -811,8 +811,8 @@
             
             if (response.ok) {
                 addLog('✅ تم النشر بنجاح على Najm Cloud!', false, true);
-                // NEW URL format: https://najm-engine.60jrhwm.workers.dev/{user_id}/{project_name}
-                const finalUrl = `https://najm-engine.60jrhwm.workers.dev/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
+                // NEW URL format: https://vercelseifr.vercel.app/{user_id}/{project_name}
+                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
                 addLog(`🌍 URL النهائي: ${finalUrl}`, false, true);
                 deployResultDiv.innerHTML = `
                     <div class="final-url">
