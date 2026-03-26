@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سيرفر المبتدئين - منصة استضافة المطورين</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #1e1e2f; 
+            color: #ffffff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .dashboard-card { 
+            background: #2a2a40; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { color: #00d2ff; margin-bottom: 5px; }
+        p { color: #a0a0b5; font-size: 14px; margin-bottom: 25px; }
+        input { 
+            width: 90%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #3f3f5a; 
+            border-radius: 6px; 
+            background: #1e1e2f; 
+            color: #fff;
+            text-align: center;
+            outline: none;
+        }
+        input:focus { border-color: #00d2ff; }
+        button { 
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); 
+            color: #fff; 
+            border: none; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            width: 100%; 
+            transition: 0.3s;
+        }
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        #response-message { 
+            margin-top: 20px; 
+            font-size: 15px; 
+            word-wrap: break-word;
+            padding: 10px;
+            border-radius: 6px;
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-card">
+        <h2>🚀 سيرفر المبتدئين</h2>
+        <p>اكتب اسم مشروعك لإنشاء مسارك البرمجي المعزول</p>
+
+        <input type="text" id="projectName" placeholder="مثال: my-first-bot" autocomplete="off">
+        
+        <button onclick="deployServer()">إنشاء السيرفر الآن</button>
+
+        <div id="response-message"></div>
+    </div>
+
+    <script>
+        async function deployServer() {
+            const projectName = document.getElementById('projectName').value.trim();
+            const responseDiv = document.getElementById('response-message');
+
+            if (!projectName) {
+                showResponse("يرجى كتابة اسم المشروع أولاً!", "#ff4d4d", "#ffe6e6");
+                return;
+            }
+
+            showResponse("⏳ جاري الاتصال بالسحابة وتجهيز المسار...", "#ffcc00", "#1e1e2f");
+
+            // محاكاة للسيرفر مؤقتاً حتى نربط الـ Worker
+            setTimeout(() => {
+                const finalUrl = `https://api.najm-server.com/${projectName}`;
+                showResponse(`✅ تم البناء بنجاح!<br><br>رابط مشروعك هو:<br><b style="color:#00d2ff; user-select: all;">${finalUrl}</b>`, "#00ff99", "rgba(0, 255, 153, 0.1)");
+            }, 1500); 
+        }
+
+        function showResponse(text, color, bgColor) {
+            const responseDiv = document.getElementById('response-message');
+            responseDiv.style.display = "block";
+            responseDiv.style.color = color;
+            responseDiv.style.backgroundColor = bgColor;
+            responseDiv.innerHTML = text;
+        }
+    </script>
+
+</body>
+</html>
