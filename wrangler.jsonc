@@ -1,5 +1,5 @@
 {
-  "name": "najm-backend",
+  "name": "najm-server",
   "main": "index.js",
   "compatibility_date": "2024-04-03",
   "compatibility_flags": [
