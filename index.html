@@ -19,12 +19,14 @@
             --success: #00ff99;
             --success-glow: rgba(0, 255, 153, 0.2);
             --danger: #ff3366;
+            --warning: #ffaa00;
             --text-light: #eef5ff;
             --text-muted: #8e9aaf;
             --border-dim: #2a2f4b;
             --code-bg: #0a0c18;
             --terminal-bg: #05070f;
             --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
+            --developer-glow: rgba(0, 210, 255, 0.15);
         }
 
         body {
@@ -92,6 +94,89 @@
             font-family: monospace;
             border: 1px solid var(--primary);
             color: var(--primary);
+        }
+
+        /* Developer Key Card */
+        .developer-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0f1225 100%);
+            border-radius: 20px;
+            padding: 1.2rem 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 20px var(--developer-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        .developer-card::before {
+            content: "⚡";
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            font-size: 80px;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+        .developer-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+        .developer-label span:first-child {
+            font-size: 1.3rem;
+        }
+        .developer-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .developer-input-wrapper input {
+            flex: 1;
+            background: var(--code-bg);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            padding: 0.9rem 1.5rem;
+            color: var(--text-light);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .developer-input-wrapper input:focus {
+            box-shadow: 0 0 15px var(--primary-glow);
+            border-color: var(--primary);
+        }
+        .developer-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .save-id-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            padding: 0.7rem 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .save-id-btn:hover {
+            background: var(--primary);
+            color: var(--bg-deep);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        .id-status {
+            font-size: 0.75rem;
+            color: var(--success);
         }
 
         /* grid layout */
@@ -358,6 +443,10 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        .warning-missing-id {
+            border-color: var(--warning);
+            box-shadow: 0 0 0 1px var(--warning);
+        }
     </style>
 </head>
 <body>
@@ -367,7 +456,24 @@
             <span>🚀</span>
             <span>منصة نجم للاستضافة</span>
         </div>
-        <div class="badge-version">v2.0 · Najm Cloud</div>
+        <div class="badge-version">v3.0 · Developer ID System</div>
+    </div>
+
+    <!-- Developer ID Card (Mandatory) -->
+    <div class="developer-card" id="developerCard">
+        <div class="developer-label">
+            <span>🔑</span>
+            <span>معرف المطور (Developer ID) · مفتاح الوصول الشخصي</span>
+        </div>
+        <div class="developer-input-wrapper">
+            <input type="text" id="userIdInput" placeholder="例: najm_dev_001  أو developer_hamza" dir="ltr">
+            <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
+        </div>
+        <div class="developer-hint">
+            <span>⚡</span>
+            <span>معرف فريد لمشاريعك، سيتم تضمينه في رابط المشروع النهائي. سيتم حفظه تلقائياً في المتصفح.</span>
+        </div>
+        <div id="userIdStatus" class="id-status" style="margin-top: 6px;"></div>
     </div>
 
     <div class="dashboard-grid">
@@ -401,7 +507,6 @@
                 <span>🔐</span> <span>المتغيرات البيئية (Secrets)</span>
             </div>
             <div id="envVarsContainer" class="env-list">
-                <!-- سيتم إضافة عناصر المتغيرات ديناميكياً هنا -->
                 <div class="env-item" data-id="0">
                     <input type="text" class="env-key" placeholder="KEY" dir="ltr" value="API_TOKEN">
                     <div class="env-value-wrapper">
@@ -440,6 +545,73 @@
     const deployBtn = document.getElementById('deployBtn');
     const terminalDiv = document.getElementById('terminalLogs');
     const deployResultDiv = document.getElementById('deployResult');
+    const userIdInput = document.getElementById('userIdInput');
+    const saveUserIdBtn = document.getElementById('saveUserIdBtn');
+    const userIdStatus = document.getElementById('userIdStatus');
+    const developerCardDiv = document.getElementById('developerCard');
+
+    // ---------- User ID Management (localStorage) ----------
+    function loadStoredUserId() {
+        const storedId = localStorage.getItem('najm_developer_id');
+        if (storedId && storedId.trim() !== '') {
+            userIdInput.value = storedId;
+            updateUserIdStatus(true, storedId);
+            return storedId;
+        } else {
+            updateUserIdStatus(false, '');
+            return '';
+        }
+    }
+
+    function updateUserIdStatus(isValid, userId) {
+        if (isValid && userId) {
+            userIdStatus.innerHTML = `✅ معرف المطور النشط: <strong dir="ltr">${escapeHtml(userId)}</strong> (محفوظ محلياً)`;
+            developerCardDiv.style.borderColor = 'var(--success)';
+            developerCardDiv.style.boxShadow = '0 0 15px rgba(0,255,153,0.2)';
+        } else {
+            userIdStatus.innerHTML = `⚠️ مطلوب: أدخل معرف المطور (Developer ID) لحفظ مشاريعك. سيتم إضافته إلى الرابط النهائي.`;
+            developerCardDiv.style.borderColor = 'var(--warning)';
+            developerCardDiv.style.boxShadow = '0 0 10px rgba(255,170,0,0.2)';
+        }
+    }
+
+    function saveUserId() {
+        const newId = userIdInput.value.trim();
+        if (newId === '') {
+            localStorage.removeItem('najm_developer_id');
+            updateUserIdStatus(false, '');
+            addLogToTerminalOnly('⚠️ تم مسح معرف المطور. الرجاء إدخال معرف صالح للنشر.', true);
+            return false;
+        }
+        // Validate: only alphanumeric, dash, underscore, no spaces
+        const validPattern = /^[a-zA-Z0-9_-]+$/;
+        if (!validPattern.test(newId)) {
+            addLogToTerminalOnly('❌ خطأ: معرف المطور يجب أن يحتوي فقط على أحرف إنجليزية، أرقام، شرطة (-) أو شرطة سفلية (_)', true);
+            userIdStatus.innerHTML = `❌ صيغة غير صالحة! استخدم أحرف إنجليزية، أرقام، - أو _ فقط.`;
+            developerCardDiv.style.borderColor = 'var(--danger)';
+            return false;
+        }
+        localStorage.setItem('najm_developer_id', newId);
+        updateUserIdStatus(true, newId);
+        addLogToTerminalOnly(`✅ تم حفظ معرف المطور: ${newId}`, false, true);
+        return true;
+    }
+
+    function getCurrentUserId() {
+        return userIdInput.value.trim();
+    }
+
+    // Helper for silent logs (internal status)
+    function addLogToTerminalOnly(message, isError = false, isSuccess = false) {
+        const logLine = document.createElement('div');
+        logLine.className = 'log-line';
+        if (isError) logLine.classList.add('log-error');
+        if (isSuccess) logLine.classList.add('log-success');
+        const timestamp = new Date().toLocaleTimeString();
+        logLine.innerText = `[${timestamp}] ${message}`;
+        terminalDiv.appendChild(logLine);
+        terminalDiv.scrollTop = terminalDiv.scrollHeight;
+    }
 
     // line numbers sync
     const lineNumbersDiv = document.getElementById('lineNumbers');
@@ -458,21 +630,19 @@
     });
     updateLineNumbers();
 
-    // helper: generate unique id for each env row
+    // Environment variables logic
     let envCounter = 1;
     function createEnvRow(keyVal = '', valVal = '', id = null) {
         const rowId = id !== null ? id : envCounter++;
         const div = document.createElement('div');
         div.className = 'env-item';
         div.setAttribute('data-id', rowId);
-        // key input
         const keyInput = document.createElement('input');
         keyInput.type = 'text';
         keyInput.className = 'env-key';
         keyInput.placeholder = 'KEY';
         keyInput.dir = 'ltr';
         keyInput.value = keyVal;
-        // value wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'env-value-wrapper';
         const valueInput = document.createElement('input');
@@ -498,7 +668,6 @@
         });
         wrapper.appendChild(valueInput);
         wrapper.appendChild(toggleBtn);
-
         const delBtn = document.createElement('button');
         delBtn.innerText = '✖';
         delBtn.className = 'delete-env';
@@ -512,9 +681,7 @@
         return div;
     }
 
-    // initialize at least one row with sample (if needed)
     function initEnvRows() {
-        // clear default if we want to keep placeholder? but there is existing .env-item demo, remove it and add fresh
         while(envContainer.firstChild) {
             envContainer.removeChild(envContainer.firstChild);
         }
@@ -529,7 +696,6 @@
         envContainer.appendChild(newRow);
     });
 
-    // collect environment variables as object
     function collectEnvVars() {
         const envItems = document.querySelectorAll('.env-item');
         const envObject = {};
@@ -545,7 +711,7 @@
         return envObject;
     }
 
-    // terminal logger (simulate steps)
+    // Terminal logger (public)
     function addLog(message, isError = false, isSuccess = false) {
         const logLine = document.createElement('div');
         logLine.className = 'log-line';
@@ -571,9 +737,15 @@
         }
     }
 
-    // simulate stepwise logs and then call actual backend
     async function performDeploy() {
-        // validation
+        // Validate User ID first (mandatory)
+        const userId = getCurrentUserId();
+        if (!userId) {
+            addLog('❌ خطأ: معرف المطور (Developer ID) مطلوب. الرجاء إدخاله وحفظه أولاً.', true);
+            deployResultDiv.innerHTML = '<div class="final-url" style="border-right-color: var(--danger);">🔐 يرجى إدخال معرف المطور (Developer ID) في الحقل العلوي والنقر على حفظ</div>';
+            return false;
+        }
+
         const projectName = projectNameInput.value.trim();
         const codeContent = codeTextarea.value.trim();
         if (!projectName) {
@@ -587,13 +759,12 @@
             return false;
         }
 
-        // clear previous result and logs (but keep fresh start)
         clearLogs();
         deployResultDiv.innerHTML = '';
         addLog('🔄 بدء عملية النشر على Najm Cloud...');
+        addLog(`👤 معرف المطور: ${userId}`);
         addLog(`📡 المشروع: ${projectName}`);
         
-        // simulate cyberpunk steps
         await delay(400);
         addLog('🔌 Connecting to Najm Cloud Gateway...');
         await delay(500);
@@ -604,12 +775,12 @@
         addLog('🤖 Pushing to Telegram DB & Distributed Storage...');
         await delay(700);
         
-        // collect env
         const envVars = collectEnvVars();
         addLog(`🔑 تم جمع ${Object.keys(envVars).length} متغيراً محمياً`);
         
-        // build payload
+        // Build payload with user_id included
         const payload = {
+            user_id: userId,
             project_name: projectName,
             code: codeContent,
             environment_variables: envVars,
@@ -640,21 +811,20 @@
             
             if (response.ok) {
                 addLog('✅ تم النشر بنجاح على Najm Cloud!', false, true);
-                const finalUrl = `https://najm-server.60jrhwm.workers.dev/${encodeURIComponent(projectName)}`;
+                // NEW URL format: https://najm-server.60jrhwm.workers.dev/{user_id}/{project_name}
+                const finalUrl = `https://najm-server.60jrhwm.workers.dev/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
                 addLog(`🌍 URL النهائي: ${finalUrl}`, false, true);
                 deployResultDiv.innerHTML = `
                     <div class="final-url">
-                        🚀 تم النشر! الرابط: <strong dir="ltr"><a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></strong>
-                        <br><span style="font-size:0.7rem;">✨ استمتع بتشغيل البوت أو السكربت</span>
+                        🚀 تم النشر! الرابط النهائي: <strong dir="ltr"><a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></strong>
+                        <br><span style="font-size:0.7rem;">✨ معرف المطور مضمن في المسار: ${userId}</span>
                     </div>
                 `;
-                // optional: show extra success message from backend
                 if(responseData && responseData.message) {
                     addLog(`📡 خادم: ${responseData.message}`, false, true);
                 }
                 return true;
             } else {
-                // error from backend
                 let errorMsg = responseData?.error || responseData?.message || 'فشل النشر من الخادم';
                 addLog(`💥 خطأ من المنصة: ${errorMsg}`, true);
                 deployResultDiv.innerHTML = `<div class="final-url" style="border-right-color: var(--danger);">⚠️ فشل النشر: ${errorMsg}</div>`;
@@ -670,7 +840,6 @@
     
     function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
     
-    // deploy handler with loading state
     let isDeploying = false;
     deployBtn.addEventListener('click', async () => {
         if (isDeploying) {
@@ -689,10 +858,14 @@
         }
     });
     
-    // sync line numbers on window load and resize
+    saveUserIdBtn.addEventListener('click', () => {
+        saveUserId();
+    });
+    
+    // Load saved ID on start
     window.addEventListener('load', () => {
+        loadStoredUserId();
         updateLineNumbers();
-        // Set default code sample to demonstrate
         if(!codeTextarea.value) {
             codeTextarea.value = `// مثال بوت تيليجرام بالبايثون (أو جافاسكريبت)
 console.log("مرحباً من نجم للاستضافة!");
@@ -710,10 +883,21 @@ function handleUpdate(update) {
         }
     });
     
-    // extra: ensure that textarea scroll syncs
     codeTextarea.addEventListener('scroll', () => {
         lineNumbersDiv.scrollTop = codeTextarea.scrollTop;
     });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
 </script>
 </body>
 </html>
