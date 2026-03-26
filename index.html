@@ -83,13 +83,28 @@
                 return;
             }
 
-            showResponse("⏳ جاري الاتصال بالسحابة وتجهيز المسار...", "#ffcc00", "#1e1e2f");
+            // إظهار حالة جاري العمل
+            showResponse("⏳ جاري الاتصال بالسحابة وتسجيل المسار في القناة...", "#ffcc00", "rgba(255, 204, 0, 0.1)");
 
-            // محاكاة للسيرفر مؤقتاً حتى نربط الـ Worker
-            setTimeout(() => {
-                const finalUrl = `https://api.najm-server.com/${projectName}`;
-                showResponse(`✅ تم البناء بنجاح!<br><br>رابط مشروعك هو:<br><b style="color:#00d2ff; user-select: all;">${finalUrl}</b>`, "#00ff99", "rgba(0, 255, 153, 0.1)");
-            }, 1500); 
+            try {
+                // الربط الحقيقي بالسيرفر (العقل المدبر)
+                const response = await fetch('https://najm-backend.60jrhwm.workers.dev', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project: projectName })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResponse(`✅ تم البناء بنجاح!<br><br>رابط مشروعك هو:<br><b style="color:#00d2ff; user-select: all;">${data.url}</b><br><br>تم إرسال نسخة من البيانات لقناتك التجارية.`, "#00ff99", "rgba(0, 255, 153, 0.1)");
+                } else {
+                    showResponse(`❌ خطأ: ${data.error}`, "#ff4d4d", "#ffe6e6");
+                }
+
+            } catch (error) {
+                showResponse("❌ فشل الاتصال بالسيرفر، تأكد من اتصال الإنترنت.", "#ff4d4d", "#ffe6e6");
+            }
         }
 
         function showResponse(text, color, bgColor) {
