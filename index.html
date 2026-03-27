@@ -20,12 +20,15 @@
             --success-glow: rgba(0, 255, 153, 0.2);
             --danger: #ff3366;
             --warning: #ffaa00;
+            --update: #aa66ff;
+            --update-glow: rgba(170, 102, 255, 0.3);
             --text-light: #eef5ff;
             --text-muted: #8e9aaf;
             --border-dim: #2a2f4b;
             --code-bg: #0a0c18;
             --terminal-bg: #05070f;
             --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
+            --gradient-update: linear-gradient(95deg, #aa66ff, #6a1b9a);
             --developer-glow: rgba(0, 210, 255, 0.15);
         }
 
@@ -152,11 +155,15 @@
             border-radius: 60px;
             color: white;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+        }
+        .deploy-btn.update-mode {
+            background: var(--gradient-update);
+            box-shadow: 0 0 15px var(--update-glow);
         }
         .cancel-edit-btn {
             background: transparent;
@@ -182,6 +189,9 @@
         .deploy-btn:hover {
             transform: scale(1.01);
             box-shadow: 0 0 20px var(--primary-glow);
+        }
+        .deploy-btn.update-mode:hover {
+            box-shadow: 0 0 20px var(--update-glow);
         }
 
         .tabs-nav {
@@ -451,8 +461,8 @@
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
         .edit-mode-badge {
-            background: var(--warning);
-            color: var(--bg-deep);
+            background: var(--update);
+            color: white;
             padding: 0.2rem 0.8rem;
             border-radius: 20px;
             font-size: 0.7rem;
@@ -489,7 +499,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v7.0 · Atomic Clean Engine</div>
+        <div class="badge-version">v9.0 · Render-like Experience</div>
     </div>
 
     <div class="developer-card" id="developerCard">
@@ -570,24 +580,7 @@
     let deploymentHistory = [];
     let savedEnvBackup = null;
 
-    // ==================== ATOMIC CLEANING: Remove all HTML, NBSP, zero-width spaces, line breaks ====================
-    function atomicClean(rawText) {
-        if (!rawText) return '';
-        let cleaned = rawText;
-        // Remove zero-width spaces and other invisible characters
-        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
-        // Replace &nbsp; with space
-        cleaned = cleaned.replace(/&nbsp;/g, ' ');
-        // Replace multiple line breaks with single newline
-        cleaned = cleaned.replace(/\r\n|\r|\n/g, '\n');
-        // Remove all HTML tags
-        cleaned = cleaned.replace(/<[^>]*>/g, ' ');
-        // Collapse multiple spaces
-        cleaned = cleaned.replace(/\s+/g, ' ').trim();
-        return cleaned;
-    }
-
-    // ==================== Enhanced HTML Entity Decoding ====================
+    // ==================== Advanced HTML Entity Decoding ====================
     function decodeHtmlEntities(text) {
         if (!text) return '';
         const textarea = document.createElement('textarea');
@@ -597,7 +590,8 @@
             '&lt;': '<', '&gt;': '>', '&amp;': '&', '&quot;': '"',
             '&#39;': "'", '&#x27;': "'", '&#x2F;': '/', '&#x60;': '`',
             '&apos;': "'", '&nbsp;': ' ', '&#34;': '"', '&#38;': '&',
-            '&#60;': '<', '&#62;': '>'
+            '&#60;': '<', '&#62;': '>', '&ldquo;': '"', '&rdquo;': '"',
+            '&lsquo;': "'", '&rsquo;': "'", '&mdash;': '—', '&ndash;': '–'
         };
         for (const [entity, char] of Object.entries(replacements)) {
             decoded = decoded.replace(new RegExp(entity, 'g'), char);
@@ -605,10 +599,20 @@
         return decoded;
     }
 
-    // ==================== Extract METADATA with Atomic Cleaning + Regex Fallback ====================
+    // ==================== Clean Metadata Only (Preserves Code) ====================
+    function cleanMetadataOnly(rawText) {
+        if (!rawText) return '';
+        let cleaned = rawText;
+        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        cleaned = cleaned.replace(/&nbsp;/g, ' ');
+        cleaned = cleaned.replace(/<[^>]*>/g, ' ');
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        return cleaned;
+    }
+
+    // ==================== Extract METADATA ====================
     function extractMetadataWithFallback(content) {
-        // First try: Atomic cleaning + JSON parse
-        const cleanedContent = atomicClean(content);
+        const cleanedContent = cleanMetadataOnly(content);
         const metadataPattern = /---\s*METADATA\s*---\s*({[\s\S]*?})\s*---\s*METADATA\s*---/i;
         const match = metadataPattern.exec(cleanedContent);
         
@@ -619,24 +623,26 @@
             } catch (e) {}
         }
         
-        // Second try: Regex fallback - search for uid and pid directly in raw content
         const uidMatch = content.match(/"uid"\s*:\s*"([^"]+)"/i);
         const pidMatch = content.match(/"pid"\s*:\s*"([^"]+)"/i);
         
         if (uidMatch && pidMatch) {
-            return {
-                uid: uidMatch[1],
-                pid: pidMatch[1],
-                code: null,
-                env: null
-            };
+            return { uid: uidMatch[1], pid: pidMatch[1], code: null, env: null };
         }
-        
         return null;
     }
 
-    // ==================== Extract Code from Message ====================
+    // ==================== EXTRACT CODE: Using [START_CODE] and [END_CODE] ====================
     function extractCodeFromMessage(content) {
+        const codeMarkerPattern = /\[START_CODE\]([\s\S]*?)\[END_CODE\]/i;
+        const markerMatch = codeMarkerPattern.exec(content);
+        
+        if (markerMatch) {
+            let extractedCode = markerMatch[1];
+            extractedCode = decodeHtmlEntities(extractedCode);
+            if (extractedCode) return extractedCode;
+        }
+        
         const codePatterns = [
             /<pre><code[^>]*class="language-[^"]*"[^>]*>([\s\S]*?)<\/code><\/pre>/i,
             /<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/i,
@@ -644,6 +650,7 @@
             /<code[^>]*>([\s\S]*?)<\/code>/i,
             /```(?:\w+)?\n([\s\S]*?)```/g
         ];
+        
         for (const pattern of codePatterns) {
             const codeMatch = content.match(pattern);
             if (codeMatch) {
@@ -656,8 +663,21 @@
         return '';
     }
 
-    // ==================== Extract Environment Variables ====================
+    // ==================== EXTRACT ENV VARS: Using [START_VARS] and [END_VARS] ====================
     function extractEnvVarsFromMessage(content) {
+        const varsMarkerPattern = /\[START_VARS\]([\s\S]*?)\[END_VARS\]/i;
+        const markerMatch = varsMarkerPattern.exec(content);
+        
+        if (markerMatch) {
+            let jsonStr = markerMatch[1].trim();
+            jsonStr = jsonStr.replace(/<[^>]*>/g, '');
+            jsonStr = decodeHtmlEntities(jsonStr);
+            try {
+                const parsed = JSON.parse(jsonStr);
+                if (typeof parsed === 'object') return parsed;
+            } catch (e) {}
+        }
+        
         const envVars = {};
         const envPattern = /🔑\s*<b>([^<]+)<\/b>\s*<code>([^<]+)<\/code>/gi;
         let envMatch;
@@ -666,12 +686,19 @@
             const value = decodeHtmlEntities(envMatch[2].trim());
             if (key && key !== 'KEY' && key !== 'VALUE') envVars[key] = value;
         }
-        const altEnvPattern = /<b>([A-Z_]+)<\/b>\s*<code>([^<]+)<\/code>/gi;
-        while ((envMatch = altEnvPattern.exec(content)) !== null) {
-            const key = decodeHtmlEntities(envMatch[1].trim());
-            const value = decodeHtmlEntities(envMatch[2].trim());
-            if (key && !envVars[key] && !key.match(/^(ID|PROJECT|UID)$/i)) envVars[key] = value;
+        
+        const jsonBlockPattern = /(?:VARS|ENV)[:\s]*```(?:json)?\n([\s\S]*?)```/i;
+        const jsonMatch = jsonBlockPattern.exec(content);
+        if (jsonMatch && Object.keys(envVars).length === 0) {
+            try {
+                let jsonStr = jsonMatch[1].trim();
+                jsonStr = jsonStr.replace(/<[^>]*>/g, '');
+                jsonStr = decodeHtmlEntities(jsonStr);
+                const parsed = JSON.parse(jsonStr);
+                Object.assign(envVars, parsed);
+            } catch (e) {}
         }
+        
         return envVars;
     }
 
@@ -689,7 +716,7 @@
         return await response.text();
     }
 
-    // ==================== Extract Smallest Message ID for Pagination ====================
+    // ==================== Extract Smallest Message ID ====================
     function getSmallestMessageId(html) {
         const allMessages = [...html.matchAll(/data-post="([^"]+)"/g)];
         if (allMessages.length === 0) return null;
@@ -701,7 +728,7 @@
         return ids[0];
     }
 
-    // ==================== Extract Projects from Page with Enhanced Logic ====================
+    // ==================== Extract Projects from Page ====================
     function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
         const projects = [];
         const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
@@ -736,7 +763,7 @@
         return { projects, lastMessageId, found: false };
     }
 
-    // ==================== DEEP SCANNER: Recursive Pagination ====================
+    // ==================== DEEP SCANNER ====================
     async function deepScanTelegram(userId, targetProjectId = null, maxDepth = 5) {
         const allProjects = [];
         let currentBeforeId = null;
@@ -784,7 +811,7 @@
         }
     }
 
-    // ==================== Immediate Persistence on Deploy ====================
+    // ==================== Immediate Persistence ====================
     function addProjectToCacheAndDisplay(project) {
         const existingIndex = projectsCache.findIndex(p => p.name === project.name);
         if (existingIndex !== -1) {
@@ -796,21 +823,28 @@
         addSystemLog(`✨ تمت إضافة المشروع "${project.name}" إلى قائمة المشاريع فوراً`, false, true);
     }
 
-    // ==================== Reset Edit Mode with Safety ====================
-    function resetEditMode() {
+    // ==================== Reset Edit Mode (Manual Cancel Only) ====================
+    function cancelEditMode() {
+        if (savedEnvBackup) {
+            const envContainer = document.getElementById('envVarsContainer');
+            envContainer.innerHTML = '';
+            Object.entries(savedEnvBackup).forEach(([key, value]) => {
+                envContainer.appendChild(createEnvRow(key, value));
+            });
+        }
+        
         currentEditProject = null;
         document.getElementById('projectName').value = '';
         document.getElementById('codeInput').value = '';
-        const envContainer = document.getElementById('envVarsContainer');
-        envContainer.innerHTML = '';
-        envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
+        
         const deployBtn = document.getElementById('deployBtn');
         deployBtn.innerHTML = '<span>🚀</span> نشر المشروع الآن';
+        deployBtn.classList.remove('update-mode');
         document.getElementById('cancelEditBtn').style.display = 'none';
         document.getElementById('editModeBadge').innerHTML = '';
         savedEnvBackup = null;
         updateLineNumbers();
-        addSystemLog('✖️ تم إلغاء وضع التعديل وتفريغ الحقول', false, false);
+        addSystemLog('✖️ تم إلغاء وضع التعديل', false, false);
     }
 
     function renderProjects(projects) {
@@ -834,7 +868,7 @@
         `).join('');
     }
 
-    // ==================== Edit Project with Backup ====================
+    // ==================== Edit Project ====================
     window.editProject = async function(projectName) {
         const userId = getCurrentUserId();
         if (!userId) { alert('الرجاء حفظ معرف المطور أولاً'); return; }
@@ -849,16 +883,31 @@
             savedEnvBackup = collectEnvVars();
             document.getElementById('projectName').value = project.name;
             document.getElementById('codeInput').value = decodeHtmlEntities(project.code);
+            
             const envContainer = document.getElementById('envVarsContainer');
             envContainer.innerHTML = '';
-            Object.entries(project.envVars).forEach(([key, value]) => {
-                envContainer.appendChild(createEnvRow(decodeHtmlEntities(key), decodeHtmlEntities(value)));
-            });
+            
+            if (project.envVars && typeof project.envVars === 'object') {
+                Object.entries(project.envVars).forEach(([key, value]) => {
+                    const decodedKey = decodeHtmlEntities(key);
+                    const decodedValue = decodeHtmlEntities(String(value));
+                    envContainer.appendChild(createEnvRow(decodedKey, decodedValue, null, true));
+                });
+            }
+            
+            if (Object.keys(project.envVars || {}).length === 0) {
+                envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123', null, true));
+            }
+            
             currentEditProject = projectName;
-            document.getElementById('deployBtn').innerHTML = '<span>🔄</span> تحديث المشروع';
+            const deployBtn = document.getElementById('deployBtn');
+            deployBtn.innerHTML = '<span>🔄</span> تحديث المشروع الحالي';
+            deployBtn.classList.add('update-mode');
             document.getElementById('cancelEditBtn').style.display = 'flex';
             document.getElementById('editModeBadge').innerHTML = '<span class="edit-mode-badge">✏️ وضع التعديل: ' + escapeHtml(projectName) + '</span>';
+            
             addSystemLog(`✅ تم تحميل المشروع "${projectName}" للمحرر`, false, true);
+            addSystemLog(`📝 تم استخراج ${Object.keys(project.envVars || {}).length} متغير بيئي`, false, false);
             updateLineNumbers();
         } else {
             addSystemLog(`❌ لم يتم العثور على المشروع "${projectName}" بعد البحث العميق`, true);
@@ -867,7 +916,7 @@
         document.querySelector('[data-tab="editor"]').click();
     };
 
-    // ==================== Deploy Function with Immediate Cache Update ====================
+    // ==================== Deploy Function (No Auto Reset) ====================
     async function performDeploy() {
         const userId = getCurrentUserId();
         if (!userId) { addLog('❌ خطأ: معرف المطور مطلوب', true); return false; }
@@ -916,7 +965,6 @@
                 document.getElementById('deployResult').innerHTML = `<div class="final-url">🚀 تم النشر! <a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></div>`;
                 addToHistory(projectName, userId, 'success', 'نشر ناجح');
                 
-                // IMMEDIATE PERSISTENCE: Add to cache without waiting for rescan
                 const newProject = {
                     name: projectName,
                     code: codeContent,
@@ -925,7 +973,9 @@
                 };
                 addProjectToCacheAndDisplay(newProject);
                 
-                resetEditMode();
+                // IMPORTANT: Do NOT reset edit mode - keep data in editor
+                // User can continue working or click cancel if they want to clear
+                
                 showProgress(false);
                 return true;
             } else {
@@ -941,7 +991,7 @@
 
     // ==================== UI Helpers ====================
     let envCounter = 1;
-    function createEnvRow(keyVal = '', valVal = '', id = null) {
+    function createEnvRow(keyVal = '', valVal = '', id = null, showAsText = false) {
         const div = document.createElement('div');
         div.className = 'env-item';
         const keyInput = document.createElement('input');
@@ -953,17 +1003,22 @@
         const wrapper = document.createElement('div');
         wrapper.className = 'env-value-wrapper';
         const valueInput = document.createElement('input');
-        valueInput.type = 'password';
+        valueInput.type = showAsText ? 'text' : 'password';
         valueInput.className = 'env-value';
         valueInput.placeholder = 'VALUE';
         valueInput.dir = 'ltr';
         valueInput.value = valVal;
         const toggleBtn = document.createElement('button');
-        toggleBtn.innerText = '👁️';
+        toggleBtn.innerText = showAsText ? '🙈' : '👁️';
         toggleBtn.className = 'toggle-pwd';
         toggleBtn.onclick = () => {
-            valueInput.type = valueInput.type === 'password' ? 'text' : 'password';
-            toggleBtn.innerText = valueInput.type === 'password' ? '👁️' : '🙈';
+            if (valueInput.type === 'password') {
+                valueInput.type = 'text';
+                toggleBtn.innerText = '🙈';
+            } else {
+                valueInput.type = 'password';
+                toggleBtn.innerText = '👁️';
+            }
         };
         const delBtn = document.createElement('button');
         delBtn.innerText = '✖';
@@ -1048,7 +1103,7 @@
     document.getElementById('saveUserIdBtn').onclick = saveUserId;
     document.getElementById('addEnvBtn').onclick = () => { document.getElementById('envVarsContainer').appendChild(createEnvRow('', '')); };
     document.getElementById('deployBtn').onclick = async () => { const btn = document.getElementById('deployBtn'); btn.disabled = true; await performDeploy(); btn.disabled = false; };
-    document.getElementById('cancelEditBtn').onclick = () => { resetEditMode(); };
+    document.getElementById('cancelEditBtn').onclick = () => { cancelEditMode(); };
     document.getElementById('scanProjectsBtn').onclick = async () => { const userId = getCurrentUserId(); if (!userId) { alert('الرجاء حفظ معرف المطور أولاً'); return; } const projects = await scanTelegramProjects(userId); projectsCache = projects; renderProjects(projects); document.querySelector('[data-tab="projects"]').click(); };
     document.getElementById('codeInput').addEventListener('input', updateLineNumbers);
     document.getElementById('codeInput').addEventListener('scroll', () => { document.getElementById('lineNumbers').scrollTop = document.getElementById('codeInput').scrollTop; });
@@ -1062,13 +1117,13 @@
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود v7.0
-console.log("Najm Cloud - Atomic Clean Engine Active");
+        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود v9.0
+console.log("Najm Cloud - Render-like Experience Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
-        version: "7.0",
+        version: "9.0",
         status: "active",
         timestamp: new Date().toISOString()
     }), {
