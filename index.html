@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نجم كلاود | منصة الاستضافة السحابية الاحترافية v13.0</title>
+    <title>نجم كلاود | منصة الاستضافة السحابية v14.0</title>
     <style>
         * {
             margin: 0;
@@ -499,7 +499,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v13.0 · Professional · Industrial Grade</div>
+        <div class="badge-version">v14.0 · Base64 Packaging · 100% Sync</div>
     </div>
 
     <div class="developer-card" id="developerCard">
@@ -510,7 +510,7 @@
         <div class="developer-input-wrapper">
             <input type="text" id="userIdInput" placeholder="مثال: najm_dev_001" dir="ltr">
             <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
-            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع (20 صفحة)</button>
+            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع (Base64 Decoder)</button>
         </div>
         <div id="userIdStatus" class="id-status"></div>
     </div>
@@ -574,7 +574,7 @@
 </div>
 
 <script>
-    // ==================== v13.0 PROFESSIONAL STABLE RELEASE ====================
+    // ==================== v14.0 BASE64 PACKAGING SYSTEM ====================
     let currentEditProject = null;
     let projectsCache = [];
     let deploymentHistory = [];
@@ -584,30 +584,24 @@
     function industrialScrubber(rawText) {
         if (!rawText) return '';
         try {
-            // Use DOMParser to completely strip HTML tags
             const parser = new DOMParser();
             const doc = parser.parseFromString(rawText, 'text/html');
             let cleaned = doc.body.textContent || '';
-            // Remove zero-width spaces and invisible characters
             cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
             return cleaned;
         } catch (e) {
-            // Fallback to regex if DOMParser fails
             return rawText.replace(/<[^>]*>/g, ' ').replace(/[\u200B-\u200D\uFEFF]/g, '');
         }
     }
 
-    // ==================== RECURSIVE HTML ENTITY DECODING (Unlimited depth) ====================
+    // ==================== RECURSIVE HTML ENTITY DECODING ====================
     function deepDecodeEntities(text, maxDepth = 10) {
         if (!text || maxDepth === 0) return text || '';
         let decoded = text;
-        
-        // Use textarea for HTML entity decoding
         const textarea = document.createElement('textarea');
         textarea.innerHTML = decoded;
         decoded = textarea.value;
         
-        // Manual replacements for stubborn entities
         const replacements = {
             '&lt;': '<', '&gt;': '>', '&amp;': '&', '&quot;': '"',
             '&#39;': "'", '&#x27;': "'", '&#x2F;': '/', '&#x60;': '`',
@@ -627,90 +621,107 @@
         if (changed || decoded !== text) {
             return deepDecodeEntities(decoded, maxDepth - 1);
         }
-        
         return decoded;
     }
 
-    // ==================== COMPLETE MESSAGE PURIFICATION ====================
-    function purifyMessage(rawContent) {
-        if (!rawContent) return '';
-        // Step 1: Industrial scrubber removes all HTML tags
-        let purified = industrialScrubber(rawContent);
-        // Step 2: Deep decode entities
-        purified = deepDecodeEntities(purified);
-        // Step 3: Normalize whitespace while preserving structure
-        purified = purified.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        return purified;
+    // ==================== SAFE BASE64 DECODING ====================
+    function safeBase64Decode(base64Str) {
+        try {
+            // First, clean the string from any whitespace or HTML entities
+            let cleaned = base64Str.trim();
+            cleaned = cleaned.replace(/\s/g, '');
+            cleaned = deepDecodeEntities(cleaned);
+            
+            // Decode Base64
+            const binaryString = atob(cleaned);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            const decoded = new TextDecoder('utf-8').decode(bytes);
+            return decoded;
+        } catch (e) {
+            console.error('Base64 decode failed:', e);
+            return null;
+        }
     }
 
-    // ==================== EXTRACT USING v13.0 FORMAT ====================
+    // ==================== EXTRACT AND DECODE PAYLOAD (v14.0) ====================
+    function extractDecodedPayload(content) {
+        const purified = industrialScrubber(content);
+        const payloadPattern = /\[ENCODED_PAYLOAD_START\]([\s\S]*?)\[ENCODED_PAYLOAD_END\]/i;
+        const match = payloadPattern.exec(purified);
+        
+        if (match) {
+            const base64Payload = match[1].trim();
+            const decodedJson = safeBase64Decode(base64Payload);
+            
+            if (decodedJson) {
+                try {
+                    const payload = JSON.parse(decodedJson);
+                    return {
+                        code: payload.code || '',
+                        vars: payload.vars || {},
+                        timestamp: payload.timestamp,
+                        version: payload.version
+                    };
+                } catch (e) {
+                    console.error('JSON parse failed:', e);
+                }
+            }
+        }
+        return null;
+    }
+
+    // ==================== EXTRACT METADATA ====================
+    function extractMetadata(content) {
+        const purified = industrialScrubber(content);
+        const metadataPattern = /---METADATA---({[\s\S]*?})---METADATA---/i;
+        const match = metadataPattern.exec(purified);
+        
+        if (match) {
+            try {
+                let jsonStr = match[1];
+                jsonStr = deepDecodeEntities(jsonStr);
+                jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
+                return JSON.parse(jsonStr);
+            } catch (e) {}
+        }
+        
+        const uidMatch = content.match(/["']uid["']\s*:\s*["']([^"']+)["']/i);
+        const pidMatch = content.match(/["']pid["']\s*:\s*["']([^"']+)["']/i);
+        if (uidMatch && pidMatch) {
+            return { uid: uidMatch[1], pid: pidMatch[1] };
+        }
+        return null;
+    }
+
+    // ==================== EXTRACT ID AND PROJECT NAME ====================
     function extractUserIdFromMessage(content) {
-        const purified = purifyMessage(content);
+        const purified = industrialScrubber(content);
         const idMatch = purified.match(/ID:([^\n]+)/i);
         if (idMatch) return idMatch[1].trim();
+        
+        const metadata = extractMetadata(content);
+        if (metadata && metadata.uid) return metadata.uid;
+        
+        const uidFallback = content.match(/["']uid["']\s*:\s*["']([^"']+)["']/i);
+        if (uidFallback) return uidFallback[1];
+        
         return null;
     }
 
     function extractProjectNameFromMessage(content) {
-        const purified = purifyMessage(content);
+        const purified = industrialScrubber(content);
         const prjMatch = purified.match(/PRJ:([^\n]+)/i);
         if (prjMatch) return prjMatch[1].trim();
-        return null;
-    }
-
-    function extractRawCode(content) {
-        const purified = purifyMessage(content);
-        const codePattern = /\[RAW_CODE\]([\s\S]*?)\[\/RAW_CODE\]/i;
-        const match = codePattern.exec(purified);
-        if (match) {
-            let code = match[1];
-            code = deepDecodeEntities(code);
-            return code.trim();
-        }
-        return '';
-    }
-
-    function extractRawVars(content) {
-        const purified = purifyMessage(content);
-        const varsPattern = /\[RAW_VARS\]([\s\S]*?)\[\/RAW_VARS\]/i;
-        const match = varsPattern.exec(purified);
-        if (match) {
-            let jsonStr = match[1];
-            jsonStr = deepDecodeEntities(jsonStr);
-            jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
-            try {
-                const parsed = JSON.parse(jsonStr);
-                if (typeof parsed === 'object') return parsed;
-            } catch (e) {
-                console.warn('Vars parse failed:', e);
-            }
-        }
-        return {};
-    }
-
-    function extractRawMeta(content) {
-        const purified = purifyMessage(content);
-        const metaPattern = /\[RAW_META\]([\s\S]*?)\[\/RAW_META\]/i;
-        const match = metaPattern.exec(purified);
-        if (match) {
-            let jsonStr = match[1];
-            jsonStr = deepDecodeEntities(jsonStr);
-            jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
-            try {
-                return JSON.parse(jsonStr);
-            } catch (e) {
-                console.warn('Meta parse failed:', e);
-            }
-        }
-        return null;
-    }
-
-    // ==================== FALLBACK: Search for uid in raw text ====================
-    function extractUidFallback(content) {
-        const purified = purifyMessage(content);
-        const uidPattern = /["']uid["']\s*:\s*["']([^"']+)["']/i;
-        const match = uidPattern.exec(purified);
-        if (match) return match[1];
+        
+        const metadata = extractMetadata(content);
+        if (metadata && metadata.pid) return metadata.pid;
+        
+        const pidFallback = content.match(/["']pid["']\s*:\s*["']([^"']+)["']/i);
+        if (pidFallback) return pidFallback[1];
+        
         return null;
     }
 
@@ -739,7 +750,7 @@
         return ids[0];
     }
 
-    // ==================== EXTRACT PROJECTS FROM PAGE (v13.0 Format) ====================
+    // ==================== EXTRACT PROJECTS FROM PAGE (v14.0 Base64 Format) ====================
     function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
         const projects = [];
         const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
@@ -750,38 +761,33 @@
         while ((match = messagePattern.exec(html)) !== null) {
             const content = match[1];
             
-            // Try v13.0 format first
-            let uid = extractUserIdFromMessage(content);
-            let projectName = extractProjectNameFromMessage(content);
+            const uid = extractUserIdFromMessage(content);
+            const projectName = extractProjectNameFromMessage(content);
             
-            // Fallback to legacy format
-            if (!uid) {
-                const meta = extractRawMeta(content);
-                if (meta && meta.uid) uid = meta.uid;
-                if (!uid) uid = extractUidFallback(content);
-            }
-            if (!projectName && extractRawMeta(content)) {
-                projectName = extractRawMeta(content)?.pid;
-            }
-            
-            if (uid && uid.toLowerCase().trim() === normalizedTargetUserId) {
-                if (!projectName) projectName = extractProjectNameFromMessage(content);
+            if (uid && uid.toLowerCase().trim() === normalizedTargetUserId && projectName) {
+                // Try Base64 payload first (v14.0 format)
+                let decodedPayload = extractDecodedPayload(content);
+                let code = '';
+                let envVars = {};
                 
-                if (projectName) {
-                    let code = extractRawCode(content);
-                    let envVars = extractRawVars(content);
-                    
-                    const projectData = {
-                        name: projectName,
-                        code: code,
-                        envVars: envVars,
-                        url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`
-                    };
-                    projects.push(projectData);
-                    
-                    if (targetProjectId && projectName === targetProjectId) {
-                        return { projects: [projectData], lastMessageId: null, found: true };
-                    }
+                if (decodedPayload) {
+                    code = decodedPayload.code || '';
+                    envVars = decodedPayload.vars || {};
+                } else {
+                    // Fallback to legacy extraction (should not happen with v14.0)
+                    addSystemLog(`⚠️ مشروع ${projectName} لم يستخدم Base64، يرجى تحديث النشر`, false, false);
+                }
+                
+                const projectData = {
+                    name: projectName,
+                    code: code,
+                    envVars: envVars,
+                    url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`
+                };
+                projects.push(projectData);
+                
+                if (targetProjectId && projectName === targetProjectId) {
+                    return { projects: [projectData], lastMessageId: null, found: true };
                 }
             }
         }
@@ -790,14 +796,14 @@
         return { projects, lastMessageId, found: false };
     }
 
-    // ==================== DEEP CRAWLER (20 pages deep) ====================
+    // ==================== DEEP CRAWLER (20 pages) ====================
     async function deepCrawlTelegram(userId, targetProjectId = null, maxDepth = 20) {
         const allProjects = [];
         let currentBeforeId = null;
         let depth = 0;
         let foundTarget = false;
         
-        addSystemLog(`🔍 بدء الزحف العميق (Deep Crawl) للمطور: ${userId}${targetProjectId ? ` | مستهدف: ${targetProjectId}` : ''}`);
+        addSystemLog(`🔍 بدء الزحف العميق (Base64 Decoder) للمطور: ${userId}${targetProjectId ? ` | مستهدف: ${targetProjectId}` : ''}`);
         addSystemLog(`📊 سيتم البحث في ${maxDepth} صفحة كحد أقصى`);
         
         while (depth < maxDepth && !foundTarget) {
@@ -813,7 +819,7 @@
                 }
                 
                 allProjects.push(...projects);
-                addSystemLog(`   ✓ تم العثور على ${projects.length} مشروع في هذه الصفحة (إجمالي: ${allProjects.length})`, false, false);
+                addSystemLog(`   ✓ تم العثور على ${projects.length} مشروع (إجمالي: ${allProjects.length})`, false, false);
                 
                 if (!lastMessageId || lastMessageId === currentBeforeId) {
                     addSystemLog(`📭 تم الوصول إلى نهاية الرسائل بعد ${depth} صفحة`, false, false);
@@ -827,7 +833,7 @@
             }
         }
         
-        addSystemLog(`✅ اكتمل الزحف العميق. تم العثور على ${allProjects.length} مشروع للمطور ${userId}`, false, true);
+        addSystemLog(`✅ اكتمل الزحف العميق. تم العثور على ${allProjects.length} مشروع`, false, true);
         return allProjects;
     }
 
@@ -837,7 +843,7 @@
         try {
             return await deepCrawlTelegram(userId, specificProjectName, 20);
         } catch (error) {
-            addSystemLog(`❌ فشل المسح العميق: ${error.message}`, true);
+            addSystemLog(`❌ فشل المسح: ${error.message}`, true);
             return [];
         } finally {
             showProgress(false);
@@ -901,7 +907,7 @@
         `).join('');
     }
 
-    // ==================== FULL ENVIRONMENT RESTORATION ====================
+    // ==================== FULL ENVIRONMENT RESTORATION (Base64 Decoder) ====================
     window.editProject = async function(projectName) {
         const userId = getCurrentUserId();
         if (!userId) { alert('الرجاء حفظ معرف المطور أولاً'); return; }
@@ -919,7 +925,7 @@
             document.getElementById('projectName').value = project.name;
             document.getElementById('codeInput').value = deepDecodeEntities(project.code);
             
-            // Full environment restoration - rebuild env vars from JSON
+            // Full environment restoration - rebuild env vars from decoded JSON
             const envContainer = document.getElementById('envVarsContainer');
             envContainer.innerHTML = '';
             
@@ -949,7 +955,7 @@
             addSystemLog(`📝 تم استعادة ${Object.keys(project.envVars || {}).length} متغير بيئي`, false, false);
             updateLineNumbers();
         } else {
-            addSystemLog(`❌ لم يتم العثور على المشروع "${projectName}" بعد البحث في 20 صفحة`, true);
+            addSystemLog(`❌ لم يتم العثور على المشروع "${projectName}"`, true);
         }
         showProgress(false);
         document.querySelector('[data-tab="editor"]').click();
@@ -967,7 +973,7 @@
 
         showProgress(true);
         clearLogs();
-        addLog('🔄 بدء النشر على Najm Cloud v13.0 PROFESSIONAL...');
+        addLog('🔄 بدء النشر على Najm Cloud v14.0 (Base64 Packaging)...');
         addLog(`👤 المطور: ${userId}`);
         addLog(`📦 المشروع: ${projectName}${currentEditProject ? ' (تحديث)' : ''}`);
         
@@ -981,7 +987,7 @@
             environment_variables: envVars
         };
         
-        addLog('📤 إرسال إلى الخادم...');
+        addLog('📤 إرسال إلى الخادم (Base64 Encoding)...');
         
         try {
             const response = await fetch('https://najm-backend.60jrhwm.workers.dev', {
@@ -995,7 +1001,7 @@
                 const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
                 addLog(`🌍 ${finalUrl}`, false, true);
                 document.getElementById('deployResult').innerHTML = `<div class="final-url">🚀 نشر ناجح! <a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></div>`;
-                addToHistory(projectName, userId, 'success', 'نشر ناجح');
+                addToHistory(projectName, userId, 'success', 'نشر ناجح (Base64)');
                 
                 const newProject = {
                     name: projectName,
@@ -1006,7 +1012,6 @@
                 addProjectToCacheAndDisplay(newProject);
                 
                 // CRITICAL: ABSOLUTELY NO RESET - Keep all data for continuous work
-                // User can continue editing or click cancel to clear manually
                 
                 showProgress(false);
                 return true;
@@ -1148,14 +1153,15 @@
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// نجم كلاود v13.0 - Professional Stable Release
-console.log("Najm Cloud v13.0 - Industrial Grade Platform Active");
+        document.getElementById('codeInput').value = `// نجم كلاود v14.0 - Base64 Packaging System
+console.log("Najm Cloud v14.0 - Industrial Standard Platform Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
-        version: "13.0",
-        status: "professional_stable",
+        version: "14.0",
+        status: "industrial_stable",
+        encoding: "base64_packaging",
         timestamp: new Date().toISOString()
     }), {
         headers: { "Content-Type": "application/json" }
