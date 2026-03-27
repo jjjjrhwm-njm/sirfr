@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نجم كلاود | منصة الاستضافة السحابية المتطورة v11.0</title>
+    <title>نجم كلاود | منصة الاستضافة السحابية المتطورة v12.0</title>
     <style>
         * {
             margin: 0;
@@ -499,7 +499,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v11.0 · Stable Sync</div>
+        <div class="badge-version">v12.0 · Final Stable · Absolute Sync</div>
     </div>
 
     <div class="developer-card" id="developerCard">
@@ -508,7 +508,7 @@
             <span>معرف المطور (Developer ID) · مفتاح الوصول الشخصي</span>
         </div>
         <div class="developer-input-wrapper">
-            <input type="text" id="userIdInput" placeholder="例: najm_dev_001" dir="ltr">
+            <input type="text" id="userIdInput" placeholder="مثال: najm_dev_001" dir="ltr">
             <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
             <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع</button>
         </div>
@@ -574,21 +574,27 @@
 </div>
 
 <script>
-    // ==================== v11.0 - Full Synchronization ====================
+    // ==================== v12.0 FINAL STABLE - ABSOLUTE SYNC ====================
     let currentEditProject = null;
     let projectsCache = [];
     let deploymentHistory = [];
     let savedEnvBackup = null;
 
-    // ==================== DOUBLE HTML ENTITY DECODING ====================
-    function decodeHtmlEntities(text) {
-        if (!text) return '';
+    // ==================== RECURSIVE HTML ENTITY DECODING (CORE FIX) ====================
+    function decodeHtmlEntitiesRecursive(text, maxDepth = 5) {
+        if (!text || maxDepth === 0) return text || '';
         let decoded = text;
-        for (let i = 0; i < 2; i++) {
-            const textarea = document.createElement('textarea');
-            textarea.innerHTML = decoded;
-            decoded = textarea.value;
+        // Use textarea for HTML entity decoding
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = decoded;
+        decoded = textarea.value;
+        
+        // Check if still contains HTML entities
+        if (decoded !== text && (decoded.includes('&') || decoded.includes('&#') || decoded.includes('&quot;'))) {
+            return decodeHtmlEntitiesRecursive(decoded, maxDepth - 1);
         }
+        
+        // Manual replacements for common entities
         const replacements = {
             '&lt;': '<', '&gt;': '>', '&amp;': '&', '&quot;': '"',
             '&#39;': "'", '&#x27;': "'", '&#x2F;': '/', '&#x60;': '`',
@@ -599,50 +605,99 @@
         for (const [entity, char] of Object.entries(replacements)) {
             decoded = decoded.replace(new RegExp(entity, 'g'), char);
         }
+        
         return decoded;
     }
 
-    // ==================== EXTRACT USING [CODE_START]/[CODE_END] ====================
-    function extractCodeFromMessage(content) {
-        const codeMarkerPattern = /\[CODE_START\]([\s\S]*?)\[CODE_END\]/i;
-        const markerMatch = codeMarkerPattern.exec(content);
-        if (markerMatch) {
-            let extractedCode = markerMatch[1];
-            extractedCode = decodeHtmlEntities(extractedCode);
-            return extractedCode.trim();
-        }
-        return '';
-    }
-
-    // ==================== EXTRACT VARS USING [VARS_START]/[VARS_END] ====================
-    function extractEnvVarsFromMessage(content) {
-        const varsMarkerPattern = /\[VARS_START\]([\s\S]*?)\[VARS_END\]/i;
-        const markerMatch = varsMarkerPattern.exec(content);
-        if (markerMatch) {
-            let jsonStr = markerMatch[1].trim();
-            jsonStr = decodeHtmlEntities(jsonStr);
-            try {
-                const parsed = JSON.parse(jsonStr);
-                if (typeof parsed === 'object') return parsed;
-            } catch (e) {}
-        }
-        return {};
+    // ==================== ATOMIC CLEANING ====================
+    function atomicClean(rawText) {
+        if (!rawText) return '';
+        let cleaned = rawText;
+        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        cleaned = decodeHtmlEntitiesRecursive(cleaned);
+        cleaned = cleaned.replace(/<[^>]*>/g, ' ');
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        return cleaned;
     }
 
     // ==================== EXTRACT METADATA ====================
     function extractMetadata(content) {
         const metadataPattern = /---METADATA---({[\s\S]*?})---METADATA---/i;
-        const match = metadataPattern.exec(content);
+        let match = metadataPattern.exec(content);
+        
         if (match) {
             try {
-                const parsed = JSON.parse(match[1]);
+                let jsonStr = match[1];
+                jsonStr = atomicClean(jsonStr);
+                jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
+                const parsed = JSON.parse(jsonStr);
                 if (parsed.uid && parsed.pid) return parsed;
-            } catch (e) {}
+            } catch (e) {
+                console.warn('Metadata parse failed:', e);
+            }
         }
+        
+        const uidMatch = content.match(/["']uid["']\s*:\s*["']([^"']+)["']/i);
+        const pidMatch = content.match(/["']pid["']\s*:\s*["']([^"']+)["']/i);
+        
+        if (uidMatch && pidMatch) {
+            return { uid: uidMatch[1], pid: pidMatch[1] };
+        }
+        
         return null;
     }
 
-    // ==================== TRIPLE CACHE BUSTER PROXY ====================
+    // ==================== EXTRACT CODE (Tolerant to HTML tags) ====================
+    function extractCodeFromMessage(content) {
+        // Pattern 1: Standard [CODE_START]...[CODE_END]
+        const codeMarkerPattern = /\[CODE_START\]([\s\S]*?)\[CODE_END\]/i;
+        let markerMatch = codeMarkerPattern.exec(content);
+        
+        if (markerMatch) {
+            let extractedCode = markerMatch[1];
+            extractedCode = extractedCode.replace(/<[^>]*>/g, '');
+            extractedCode = decodeHtmlEntitiesRecursive(extractedCode);
+            if (extractedCode.trim()) return extractedCode.trim();
+        }
+        
+        // Pattern 2: Tolerant pattern for HTML-wrapped content
+        const tolerantPattern = /\[CODE_START\](?:<[^>]*>)*([\s\S]*?)(?:<[^>]*>)*\[CODE_END\]/i;
+        let tolerantMatch = tolerantPattern.exec(content);
+        
+        if (tolerantMatch) {
+            let extractedCode = tolerantMatch[1];
+            extractedCode = extractedCode.replace(/<[^>]*>/g, '');
+            extractedCode = decodeHtmlEntitiesRecursive(extractedCode);
+            if (extractedCode.trim()) return extractedCode.trim();
+        }
+        
+        return '';
+    }
+
+    // ==================== EXTRACT ENV VARS ====================
+    function extractEnvVarsFromMessage(content) {
+        const varsMarkerPattern = /\[VARS_START\]([\s\S]*?)\[VARS_END\]/i;
+        const markerMatch = varsMarkerPattern.exec(content);
+        
+        if (markerMatch) {
+            let jsonStr = markerMatch[1];
+            jsonStr = jsonStr.replace(/<[^>]*>/g, '');
+            jsonStr = decodeHtmlEntitiesRecursive(jsonStr);
+            jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
+            jsonStr = jsonStr.replace(/&#39;/g, "'").replace(/&apos;/g, "'");
+            
+            try {
+                const parsed = JSON.parse(jsonStr);
+                if (typeof parsed === 'object') return parsed;
+            } catch (e) {
+                console.warn('Env vars parse failed:', e);
+            }
+        }
+        
+        return {};
+    }
+
+    // ==================== TRIPLE CACHE BUSTER WITH PROXY ====================
     async function fetchTelegramPage(beforeId = null) {
         const baseUrl = 'https://t.me/s/nejm_njm';
         const nocache = Date.now() + Math.random() * 1000000;
@@ -667,31 +722,40 @@
         return ids[0];
     }
 
-    // ==================== EXTRACT PROJECTS WITH PRECISE REGEX ====================
+    // ==================== EXTRACT PROJECTS (with fuzzy matching) ====================
     function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
         const projects = [];
         const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
         let match;
         
+        const normalizedTargetUserId = targetUserId.toString().toLowerCase().trim();
+        
         while ((match = messagePattern.exec(html)) !== null) {
             const content = match[1];
             const metadata = extractMetadata(content);
             
-            if (metadata && metadata.uid && metadata.uid.toString().toLowerCase().trim() === targetUserId.toLowerCase().trim()) {
-                const projectName = metadata.pid;
-                if (projectName) {
-                    let code = extractCodeFromMessage(content);
-                    let envVars = extractEnvVarsFromMessage(content);
-                    
-                    const projectData = {
-                        name: projectName,
-                        code: code,
-                        envVars: envVars,
-                        url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`,
-                        metadata: metadata
-                    };
-                    projects.push(projectData);
-                    if (targetProjectId && projectName === targetProjectId) return { projects: [projectData], lastMessageId: null, found: true };
+            if (metadata && metadata.uid) {
+                const normalizedUid = metadata.uid.toString().toLowerCase().trim();
+                
+                if (normalizedUid === normalizedTargetUserId) {
+                    const projectName = metadata.pid;
+                    if (projectName) {
+                        let code = extractCodeFromMessage(content);
+                        let envVars = extractEnvVarsFromMessage(content);
+                        
+                        const projectData = {
+                            name: projectName,
+                            code: code,
+                            envVars: envVars,
+                            url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`,
+                            metadata: metadata
+                        };
+                        projects.push(projectData);
+                        
+                        if (targetProjectId && projectName === targetProjectId) {
+                            return { projects: [projectData], lastMessageId: null, found: true };
+                        }
+                    }
                 }
             }
         }
@@ -715,11 +779,14 @@
             try {
                 const html = await fetchTelegramPage(currentBeforeId);
                 const { projects, lastMessageId, found } = extractProjectsFromPage(html, userId, targetProjectId);
+                
                 if (targetProjectId && found) {
                     addSystemLog(`🎯 تم العثور على المشروع "${targetProjectId}"`, false, true);
                     return projects;
                 }
+                
                 allProjects.push(...projects);
+                
                 if (!lastMessageId || lastMessageId === currentBeforeId) {
                     break;
                 }
@@ -730,6 +797,7 @@
                 break;
             }
         }
+        
         addSystemLog(`✅ اكتمل المسح. تم العثور على ${allProjects.length} مشروع`, false, true);
         return allProjects;
     }
@@ -747,7 +815,7 @@
         }
     }
 
-    // ==================== ADD PROJECT IMMEDIATELY (NO RESET) ====================
+    // ==================== IMMEDIATE PERSISTENCE ====================
     function addProjectToCacheAndDisplay(project) {
         const existingIndex = projectsCache.findIndex(p => p.name === project.name);
         if (existingIndex !== -1) {
@@ -804,7 +872,7 @@
         `).join('');
     }
 
-    // ==================== EDIT MODE: CLEAR & REBUILD ====================
+    // ==================== EDIT MODE: Full Restore ====================
     window.editProject = async function(projectName) {
         const userId = getCurrentUserId();
         if (!userId) { alert('الرجاء حفظ معرف المطور أولاً'); return; }
@@ -819,17 +887,16 @@
             savedEnvBackup = collectEnvVars();
             
             document.getElementById('projectName').value = project.name;
-            document.getElementById('codeInput').value = decodeHtmlEntities(project.code);
+            document.getElementById('codeInput').value = decodeHtmlEntitiesRecursive(project.code);
             
-            // Clear and rebuild env vars container
             const envContainer = document.getElementById('envVarsContainer');
             envContainer.innerHTML = '';
             
             if (project.envVars && typeof project.envVars === 'object') {
                 Object.entries(project.envVars).forEach(([key, value]) => {
                     envContainer.appendChild(createEnvRow(
-                        decodeHtmlEntities(key), 
-                        decodeHtmlEntities(String(value)), 
+                        decodeHtmlEntitiesRecursive(key), 
+                        decodeHtmlEntitiesRecursive(String(value)), 
                         null, 
                         true
                     ));
@@ -857,7 +924,7 @@
         document.querySelector('[data-tab="editor"]').click();
     };
 
-    // ==================== DEPLOY FUNCTION (NO AUTO RESET) ====================
+    // ==================== DEPLOY FUNCTION (NO AUTO RESET - CRITICAL) ====================
     async function performDeploy() {
         const userId = getCurrentUserId();
         if (!userId) { addLog('❌ معرف المطور مطلوب', true); return false; }
@@ -869,7 +936,7 @@
 
         showProgress(true);
         clearLogs();
-        addLog('🔄 بدء النشر على Najm Cloud v11.0...');
+        addLog('🔄 بدء النشر على Najm Cloud v12.0 FINAL...');
         addLog(`👤 المطور: ${userId}`);
         addLog(`📦 المشروع: ${projectName}${currentEditProject ? ' (تحديث)' : ''}`);
         
@@ -907,7 +974,9 @@
                 };
                 addProjectToCacheAndDisplay(newProject);
                 
-                // IMPORTANT: NO RESET - Keep code in editor
+                // CRITICAL: NO RESET - Keep all data in editor for continuous work
+                // User can continue editing or click cancel to clear manually
+                
                 showProgress(false);
                 return true;
             } else {
@@ -1048,14 +1117,14 @@
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// نجم كلاود v11.0 - منصة الاستضافة السحابية
-console.log("Najm Cloud v11.0 - Fully Synchronized");
+        document.getElementById('codeInput').value = `// نجم كلاود v12.0 - Final Stable Release
+console.log("Najm Cloud v12.0 - Absolute Synchronization Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
-        version: "11.0",
-        status: "active",
+        version: "12.0",
+        status: "final_stable",
         timestamp: new Date().toISOString()
     }), {
         headers: { "Content-Type": "application/json" }
