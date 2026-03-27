@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نجم كلاود | منصة الاستضافة السحابية v14.0</title>
+    <title>نجم كلاود | منصة الاستضافة السحابية v15.0</title>
     <style>
         * {
             margin: 0;
@@ -499,7 +499,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v14.0 · Base64 Packaging · 100% Sync</div>
+        <div class="badge-version">v15.0 · Bracket Enclosures · 100% Sync</div>
     </div>
 
     <div class="developer-card" id="developerCard">
@@ -510,7 +510,7 @@
         <div class="developer-input-wrapper">
             <input type="text" id="userIdInput" placeholder="مثال: najm_dev_001" dir="ltr">
             <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
-            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع (Base64 Decoder)</button>
+            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح عميق للمشاريع (Bracket System)</button>
         </div>
         <div id="userIdStatus" class="id-status"></div>
     </div>
@@ -574,30 +574,39 @@
 </div>
 
 <script>
-    // ==================== v14.0 BASE64 PACKAGING SYSTEM ====================
+    // ==================== v15.0 BRACKET ENCLOSURES SYSTEM ====================
     let currentEditProject = null;
     let projectsCache = [];
     let deploymentHistory = [];
     let savedEnvBackup = null;
 
-    // ==================== INDUSTRIAL SCRUBBER - DOMParser based HTML stripping ====================
-    function industrialScrubber(rawText) {
+    // ==================== SAFE SCRUBBER - Preserves line breaks ====================
+    function safeScrubber(rawText) {
         if (!rawText) return '';
-        try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(rawText, 'text/html');
-            let cleaned = doc.body.textContent || '';
-            cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            return cleaned;
-        } catch (e) {
-            return rawText.replace(/<[^>]*>/g, ' ').replace(/[\u200B-\u200D\uFEFF]/g, '');
-        }
+        let cleaned = rawText;
+        
+        // Step 1: Convert HTML break tags to newlines (preserve structure)
+        cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
+        cleaned = cleaned.replace(/<\/div>/gi, '\n');
+        cleaned = cleaned.replace(/<\/p>/gi, '\n');
+        
+        // Step 2: Remove all remaining HTML tags
+        cleaned = cleaned.replace(/<[^>]*>/g, '');
+        
+        // Step 3: Remove zero-width spaces and invisible characters
+        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        
+        // Step 4: Normalize line endings
+        cleaned = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        
+        return cleaned;
     }
 
     // ==================== RECURSIVE HTML ENTITY DECODING ====================
     function deepDecodeEntities(text, maxDepth = 10) {
         if (!text || maxDepth === 0) return text || '';
         let decoded = text;
+        
         const textarea = document.createElement('textarea');
         textarea.innerHTML = decoded;
         decoded = textarea.value;
@@ -624,105 +633,70 @@
         return decoded;
     }
 
+    // ==================== BRACKET EXTRACTORS - Laser precision ====================
+    function extractBracketId(content) {
+        const purified = safeScrubber(content);
+        const pattern = /\[NAJM_ID:\s*([^\]]+)\]/i;
+        const match = pattern.exec(purified);
+        if (match) return match[1].trim();
+        return null;
+    }
+
+    function extractBracketProject(content) {
+        const purified = safeScrubber(content);
+        const pattern = /\[NAJM_PRJ:\s*([^\]]+)\]/i;
+        const match = pattern.exec(purified);
+        if (match) return match[1].trim();
+        return null;
+    }
+
+    function extractBracketPayload(content) {
+        const purified = safeScrubber(content);
+        const pattern = /\[NAJM_PAYLOAD_START\]([\s\S]*?)\[NAJM_PAYLOAD_END\]/i;
+        const match = pattern.exec(purified);
+        if (match) return match[1].trim();
+        return null;
+    }
+
     // ==================== SAFE BASE64 DECODING ====================
     function safeBase64Decode(base64Str) {
         try {
-            // First, clean the string from any whitespace or HTML entities
             let cleaned = base64Str.trim();
             cleaned = cleaned.replace(/\s/g, '');
             cleaned = deepDecodeEntities(cleaned);
             
-            // Decode Base64
             const binaryString = atob(cleaned);
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
-            const decoded = new TextDecoder('utf-8').decode(bytes);
-            return decoded;
+            return new TextDecoder('utf-8').decode(bytes);
         } catch (e) {
             console.error('Base64 decode failed:', e);
             return null;
         }
     }
 
-    // ==================== EXTRACT AND DECODE PAYLOAD (v14.0) ====================
-    function extractDecodedPayload(content) {
-        const purified = industrialScrubber(content);
-        const payloadPattern = /\[ENCODED_PAYLOAD_START\]([\s\S]*?)\[ENCODED_PAYLOAD_END\]/i;
-        const match = payloadPattern.exec(purified);
+    // ==================== EXTRACT AND DECODE FULL PAYLOAD ====================
+    function extractFullPayload(content) {
+        const base64Payload = extractBracketPayload(content);
+        if (!base64Payload) return null;
         
-        if (match) {
-            const base64Payload = match[1].trim();
-            const decodedJson = safeBase64Decode(base64Payload);
-            
-            if (decodedJson) {
-                try {
-                    const payload = JSON.parse(decodedJson);
-                    return {
-                        code: payload.code || '',
-                        vars: payload.vars || {},
-                        timestamp: payload.timestamp,
-                        version: payload.version
-                    };
-                } catch (e) {
-                    console.error('JSON parse failed:', e);
-                }
-            }
+        const decodedJson = safeBase64Decode(base64Payload);
+        if (!decodedJson) return null;
+        
+        try {
+            const payload = JSON.parse(decodedJson);
+            return {
+                code: payload.code || '',
+                vars: payload.vars || {},
+                timestamp: payload.timestamp,
+                version: payload.version
+            };
+        } catch (e) {
+            console.error('JSON parse failed:', e);
+            return null;
         }
-        return null;
-    }
-
-    // ==================== EXTRACT METADATA ====================
-    function extractMetadata(content) {
-        const purified = industrialScrubber(content);
-        const metadataPattern = /---METADATA---({[\s\S]*?})---METADATA---/i;
-        const match = metadataPattern.exec(purified);
-        
-        if (match) {
-            try {
-                let jsonStr = match[1];
-                jsonStr = deepDecodeEntities(jsonStr);
-                jsonStr = jsonStr.replace(/&quot;/g, '"').replace(/&#34;/g, '"');
-                return JSON.parse(jsonStr);
-            } catch (e) {}
-        }
-        
-        const uidMatch = content.match(/["']uid["']\s*:\s*["']([^"']+)["']/i);
-        const pidMatch = content.match(/["']pid["']\s*:\s*["']([^"']+)["']/i);
-        if (uidMatch && pidMatch) {
-            return { uid: uidMatch[1], pid: pidMatch[1] };
-        }
-        return null;
-    }
-
-    // ==================== EXTRACT ID AND PROJECT NAME ====================
-    function extractUserIdFromMessage(content) {
-        const purified = industrialScrubber(content);
-        const idMatch = purified.match(/ID:([^\n]+)/i);
-        if (idMatch) return idMatch[1].trim();
-        
-        const metadata = extractMetadata(content);
-        if (metadata && metadata.uid) return metadata.uid;
-        
-        const uidFallback = content.match(/["']uid["']\s*:\s*["']([^"']+)["']/i);
-        if (uidFallback) return uidFallback[1];
-        
-        return null;
-    }
-
-    function extractProjectNameFromMessage(content) {
-        const purified = industrialScrubber(content);
-        const prjMatch = purified.match(/PRJ:([^\n]+)/i);
-        if (prjMatch) return prjMatch[1].trim();
-        
-        const metadata = extractMetadata(content);
-        if (metadata && metadata.pid) return metadata.pid;
-        
-        const pidFallback = content.match(/["']pid["']\s*:\s*["']([^"']+)["']/i);
-        if (pidFallback) return pidFallback[1];
-        
-        return null;
     }
 
     // ==================== TRIPLE CACHE BUSTER WITH PROXY ====================
@@ -750,7 +724,7 @@
         return ids[0];
     }
 
-    // ==================== EXTRACT PROJECTS FROM PAGE (v14.0 Base64 Format) ====================
+    // ==================== EXTRACT PROJECTS FROM PAGE (Bracket System) ====================
     function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
         const projects = [];
         const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
@@ -761,21 +735,19 @@
         while ((match = messagePattern.exec(html)) !== null) {
             const content = match[1];
             
-            const uid = extractUserIdFromMessage(content);
-            const projectName = extractProjectNameFromMessage(content);
+            const uid = extractBracketId(content);
+            const projectName = extractBracketProject(content);
             
             if (uid && uid.toLowerCase().trim() === normalizedTargetUserId && projectName) {
-                // Try Base64 payload first (v14.0 format)
-                let decodedPayload = extractDecodedPayload(content);
+                const payload = extractFullPayload(content);
                 let code = '';
                 let envVars = {};
                 
-                if (decodedPayload) {
-                    code = decodedPayload.code || '';
-                    envVars = decodedPayload.vars || {};
+                if (payload) {
+                    code = payload.code || '';
+                    envVars = payload.vars || {};
                 } else {
-                    // Fallback to legacy extraction (should not happen with v14.0)
-                    addSystemLog(`⚠️ مشروع ${projectName} لم يستخدم Base64، يرجى تحديث النشر`, false, false);
+                    addSystemLog(`⚠️ مشروع ${projectName} لم يستخدم نظام الأقواس، يرجى تحديث النشر`, false, false);
                 }
                 
                 const projectData = {
@@ -803,7 +775,7 @@
         let depth = 0;
         let foundTarget = false;
         
-        addSystemLog(`🔍 بدء الزحف العميق (Base64 Decoder) للمطور: ${userId}${targetProjectId ? ` | مستهدف: ${targetProjectId}` : ''}`);
+        addSystemLog(`🔍 بدء الزحف العميق (Bracket System) للمطور: ${userId}${targetProjectId ? ` | مستهدف: ${targetProjectId}` : ''}`);
         addSystemLog(`📊 سيتم البحث في ${maxDepth} صفحة كحد أقصى`);
         
         while (depth < maxDepth && !foundTarget) {
@@ -907,7 +879,7 @@
         `).join('');
     }
 
-    // ==================== FULL ENVIRONMENT RESTORATION (Base64 Decoder) ====================
+    // ==================== FULL ENVIRONMENT RESTORATION ====================
     window.editProject = async function(projectName) {
         const userId = getCurrentUserId();
         if (!userId) { alert('الرجاء حفظ معرف المطور أولاً'); return; }
@@ -921,11 +893,9 @@
         if (project) {
             savedEnvBackup = collectEnvVars();
             
-            // Restore project name and code
             document.getElementById('projectName').value = project.name;
             document.getElementById('codeInput').value = deepDecodeEntities(project.code);
             
-            // Full environment restoration - rebuild env vars from decoded JSON
             const envContainer = document.getElementById('envVarsContainer');
             envContainer.innerHTML = '';
             
@@ -973,7 +943,7 @@
 
         showProgress(true);
         clearLogs();
-        addLog('🔄 بدء النشر على Najm Cloud v14.0 (Base64 Packaging)...');
+        addLog('🔄 بدء النشر على Najm Cloud v15.0 (Bracket System)...');
         addLog(`👤 المطور: ${userId}`);
         addLog(`📦 المشروع: ${projectName}${currentEditProject ? ' (تحديث)' : ''}`);
         
@@ -987,7 +957,7 @@
             environment_variables: envVars
         };
         
-        addLog('📤 إرسال إلى الخادم (Base64 Encoding)...');
+        addLog('📤 إرسال إلى الخادم (Bracket + Base64)...');
         
         try {
             const response = await fetch('https://najm-backend.60jrhwm.workers.dev', {
@@ -1001,7 +971,7 @@
                 const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
                 addLog(`🌍 ${finalUrl}`, false, true);
                 document.getElementById('deployResult').innerHTML = `<div class="final-url">🚀 نشر ناجح! <a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></div>`;
-                addToHistory(projectName, userId, 'success', 'نشر ناجح (Base64)');
+                addToHistory(projectName, userId, 'success', 'نشر ناجح (Bracket)');
                 
                 const newProject = {
                     name: projectName,
@@ -1153,15 +1123,15 @@
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// نجم كلاود v14.0 - Base64 Packaging System
-console.log("Najm Cloud v14.0 - Industrial Standard Platform Active");
+        document.getElementById('codeInput').value = `// نجم كلاود v15.0 - Bracket Enclosures System
+console.log("Najm Cloud v15.0 - Production Grade Platform Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
-        version: "14.0",
-        status: "industrial_stable",
-        encoding: "base64_packaging",
+        version: "15.0",
+        status: "production_stable",
+        encoding: "bracket_base64",
         timestamp: new Date().toISOString()
     }), {
         headers: { "Content-Type": "application/json" }
