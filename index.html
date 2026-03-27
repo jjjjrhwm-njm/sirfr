@@ -3,1001 +3,491 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نجم كلاود | منصة الاستضافة السحابية v15.0</title>
+    <title>نجم كلاود | منصة الاستضافة السحابية المتقدمة v16.0</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-deep: #0f1020;
-            --card-bg: #161b33;
-            --primary: #00d2ff;
-            --primary-glow: rgba(0, 210, 255, 0.3);
-            --success: #00ff99;
-            --success-glow: rgba(0, 255, 153, 0.2);
-            --danger: #ff3366;
-            --warning: #ffaa00;
-            --update: #aa66ff;
-            --update-glow: rgba(170, 102, 255, 0.3);
-            --text-light: #eef5ff;
-            --text-muted: #8e9aaf;
-            --border-dim: #2a2f4b;
-            --code-bg: #0a0c18;
-            --terminal-bg: #05070f;
-            --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
+            --bg-deep: #0f1020; --card-bg: #161b33; --primary: #00d2ff;
+            --primary-glow: rgba(0, 210, 255, 0.3); --success: #00ff99;
+            --success-glow: rgba(0, 255, 153, 0.2); --danger: #ff3366;
+            --warning: #ffaa00; --update: #aa66ff; --text-light: #eef5ff;
+            --text-muted: #8e9aaf; --border-dim: #2a2f4b; --code-bg: #0a0c18;
+            --terminal-bg: #05070f; --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
             --gradient-update: linear-gradient(95deg, #aa66ff, #6a1b9a);
-            --developer-glow: rgba(0, 210, 255, 0.15);
         }
 
         body {
-            background: var(--bg-deep);
-            font-family: 'Tajawal', 'Segoe UI', system-ui, -apple-system, 'Courier New', monospace;
-            color: var(--text-light);
-            line-height: 1.5;
-            padding: 2rem 1.5rem;
-            min-height: 100vh;
+            background: var(--bg-deep); font-family: 'Tajawal', monospace;
+            color: var(--text-light); line-height: 1.5; padding: 2rem 1.5rem; min-height: 100vh;
         }
 
         .progress-bar-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: rgba(0, 210, 255, 0.2);
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s;
+            position: fixed; top: 0; left: 0; right: 0; height: 4px;
+            background: rgba(0, 210, 255, 0.1); z-index: 10000; opacity: 0; transition: opacity 0.3s;
         }
         .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--success));
-            width: 0%;
-            transition: width 0.3s ease-out;
-            box-shadow: 0 0 10px var(--primary);
+            height: 100%; background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%; transition: width 0.3s ease-out; box-shadow: 0 0 15px var(--primary);
         }
         .progress-bar-container.active { opacity: 1; }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-deep); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 8px; }
 
         .dashboard-container { max-width: 1600px; margin: 0 auto; }
 
         .header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 1rem;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 2rem; border-bottom: 2px solid var(--primary); padding-bottom: 1rem;
         }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .badge-version {
-            background: var(--card-bg);
-            padding: 0.3rem 0.8rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-family: monospace;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
+        .logo-area { font-size: 2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+        .badge-version { background: var(--card-bg); padding: 0.4rem 1rem; border-radius: 40px; border: 1px solid var(--primary); color: var(--primary); }
 
         .developer-card {
             background: linear-gradient(135deg, var(--card-bg) 0%, #0f1225 100%);
-            border-radius: 20px;
-            padding: 1.2rem 1.8rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 20px var(--developer-glow);
-            transition: all 0.3s;
+            border-radius: 20px; padding: 1.5rem 2rem; margin-bottom: 2rem;
+            border: 1px solid var(--primary); box-shadow: 0 0 25px var(--primary-glow);
         }
-        .developer-input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .developer-input-wrapper { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
         .developer-input-wrapper input {
-            flex: 1;
-            background: var(--code-bg);
-            border: 1px solid var(--primary);
-            border-radius: 60px;
-            padding: 0.9rem 1.5rem;
-            color: var(--text-light);
-            font-family: 'Fira Code', monospace;
-            font-size: 0.95rem;
+            flex: 1; background: var(--code-bg); border: 1px solid var(--primary);
+            border-radius: 60px; padding: 1rem 1.5rem; color: var(--text-light); font-size: 1.1rem; outline: none;
         }
-        .save-id-btn, .scan-projects-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            border-radius: 60px;
-            padding: 0.7rem 1.5rem;
-            color: var(--primary);
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
+        .btn {
+            background: transparent; border: 1px solid var(--primary); border-radius: 60px;
+            padding: 1rem 2rem; color: var(--primary); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem;
         }
-        .save-id-btn:hover, .scan-projects-btn:hover {
-            background: var(--primary);
-            color: var(--bg-deep);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-        .id-status { font-size: 0.75rem; color: var(--success); margin-top: 8px; }
+        .btn:hover { background: var(--primary); color: var(--bg-deep); box-shadow: 0 0 15px var(--primary-glow); }
 
-        .deploy-button-group {
-            display: flex;
-            gap: 12px;
-            margin: 1.5rem 0 1rem;
-        }
-        .deploy-btn {
-            background: var(--gradient-btn);
-            border: none;
-            flex: 3;
-            padding: 1rem;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 60px;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-        .deploy-btn.update-mode {
-            background: var(--gradient-update);
-            box-shadow: 0 0 15px var(--update-glow);
-        }
-        .cancel-edit-btn {
-            background: transparent;
-            border: 1px solid var(--danger);
-            flex: 1;
-            padding: 1rem;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 60px;
-            color: var(--danger);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .cancel-edit-btn:hover {
-            background: var(--danger);
-            color: white;
-            box-shadow: 0 0 15px rgba(255,51,102,0.3);
-        }
-        .deploy-btn:hover {
-            transform: scale(1.01);
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-        .deploy-btn.update-mode:hover {
-            box-shadow: 0 0 20px var(--update-glow);
-        }
-
-        .tabs-nav {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-dim);
-            padding-bottom: 0.5rem;
-        }
-        .tab-btn {
-            background: transparent;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .tab-btn.active {
-            color: var(--primary);
-            background: rgba(0, 210, 255, 0.1);
-            border-bottom: 2px solid var(--primary);
-        }
+        .tabs-nav { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-dim); padding-bottom: 0.5rem; }
+        .tab-btn { background: transparent; border: none; padding: 1rem 2rem; color: var(--text-muted); font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 12px; transition: 0.3s; }
+        .tab-btn.active { color: var(--primary); background: rgba(0, 210, 255, 0.1); border-bottom: 3px solid var(--primary); }
         .tab-btn:hover { color: var(--primary); }
 
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .project-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 1.2rem;
-            border: 1px solid var(--border-dim);
-            transition: all 0.3s;
-        }
-        .project-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 8px 20px rgba(0, 210, 255, 0.2);
-        }
-        .project-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .project-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary);
-            font-family: monospace;
-        }
-        .project-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.75rem;
-            color: var(--success);
-        }
-        .project-status.active::before {
-            content: "●";
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; text-shadow: 0 0 0px var(--success); }
-            50% { opacity: 0.5; text-shadow: 0 0 5px var(--success); }
-        }
-        .project-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 1rem;
-        }
-        .project-btn {
-            flex: 1;
-            background: transparent;
-            border: 1px solid var(--border-dim);
-            border-radius: 12px;
-            padding: 0.5rem;
-            color: var(--text-light);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 0.8rem;
-        }
-        .project-btn.edit-btn:hover { border-color: var(--warning); color: var(--warning); }
-        .project-btn.visit-btn:hover { border-color: var(--success); color: var(--success); }
-        .project-meta {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 0.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid var(--border-dim);
-        }
+        .dashboard-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; }
+        @media (max-width: 1000px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        .history-logs {
-            background: var(--terminal-bg);
-            border-radius: 20px;
-            padding: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .history-item {
-            padding: 0.8rem;
-            border-bottom: 1px solid var(--border-dim);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .history-project { font-family: monospace; color: var(--primary); }
-        .history-time { font-size: 0.7rem; color: var(--text-muted); }
-        .history-status { color: var(--success); font-size: 0.7rem; }
+        .card { background: var(--card-bg); border-radius: 28px; padding: 2rem; border: 1px solid rgba(0, 210, 255, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .card-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 1.5rem; border-right: 5px solid var(--primary); padding-right: 15px; display: flex; align-items: center; gap: 10px; }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.8rem;
-        }
-        @media (max-width: 900px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-            body { padding: 1.2rem; }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 28px;
-            padding: 1.5rem;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-        }
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            border-right: 4px solid var(--primary);
-            padding-right: 12px;
-        }
-
-        .code-editor-wrapper {
-            background: var(--code-bg);
-            border-radius: 20px;
-            border: 1px solid var(--border-dim);
-            overflow: hidden;
-        }
-        .code-header {
-            background: #0a0c1a;
-            padding: 0.6rem 1rem;
-            font-size: 0.75rem;
-            border-bottom: 1px solid var(--border-dim);
-            color: var(--primary);
-            font-family: monospace;
-            display: flex;
-            justify-content: space-between;
-        }
-        .editor-container { display: flex; direction: ltr; text-align: left; }
-        .line-numbers {
-            background: #070915;
-            padding: 1rem 0.75rem;
-            text-align: center;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            border-left: 1px solid var(--border-dim);
-            user-select: none;
-            line-height: 1.5;
-        }
-        #codeInput {
-            border: none;
-            resize: vertical;
-            min-height: 280px;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            background: var(--code-bg);
-            padding: 1rem;
-            width: 100%;
-            direction: ltr;
-            color: var(--text-light);
-        }
-        #codeInput:focus { outline: none; }
-
-        .env-list {
-            margin-bottom: 1rem;
-            max-height: 260px;
-            overflow-y: auto;
-        }
-        .env-item {
-            display: flex;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-            background: rgba(10, 12, 24, 0.6);
-            padding: 0.6rem;
-            border-radius: 20px;
-        }
-        .env-key {
-            flex: 1.2;
-            min-width: 110px;
-            background: var(--code-bg);
-            border: 1px solid var(--border-dim);
-            border-radius: 12px;
-            padding: 0.5rem;
-            color: var(--text-light);
-        }
-        .env-value-wrapper {
-            flex: 2;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        .env-value {
-            flex: 1;
-            background: var(--code-bg);
-            border: 1px solid var(--border-dim);
-            border-radius: 12px;
-            padding: 0.5rem;
-            color: var(--text-light);
-            font-family: monospace;
-        }
-        .toggle-pwd, .delete-env { background: none; border: none; cursor: pointer; font-size: 1.1rem; }
-        .toggle-pwd { color: var(--primary); }
-        .delete-env { color: var(--danger); }
-        .btn-secondary {
-            background: transparent;
-            border: 1px dashed var(--primary);
-            padding: 0.5rem 1rem;
-            border-radius: 40px;
-            color: var(--primary);
-            cursor: pointer;
-        }
-
-        .terminal {
-            background: var(--terminal-bg);
-            border-radius: 20px;
-            padding: 1rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.8rem;
-            border: 1px solid #2a2f4b;
-            max-height: 280px;
-            overflow-y: auto;
-        }
-        .log-line {
-            color: #b0ffd0;
-            border-bottom: 1px dotted rgba(0,210,255,0.2);
-            padding: 5px 0;
-            white-space: pre-wrap;
-        }
-        .log-success { color: var(--success); }
-        .log-error { color: var(--danger); }
-
-        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-        .edit-mode-badge {
-            background: var(--update);
-            color: white;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            margin-right: 10px;
-        }
-        .final-url {
-            background: #0f121f;
-            padding: 0.8rem;
-            border-radius: 14px;
-            font-family: monospace;
-            word-break: break-all;
-            margin-top: 12px;
-            border-right: 3px solid var(--success);
-        }
         .input-group { margin-bottom: 1.5rem; }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
+        .input-group label { display: block; margin-bottom: 0.8rem; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 1rem; border-radius: 12px; background: var(--code-bg); border: 1px solid var(--border-dim); color: white; font-size: 1.1rem; outline: none; transition: 0.3s; }
+        .input-group input:focus { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+
+        .code-editor-wrapper { background: var(--code-bg); border-radius: 20px; border: 1px solid var(--border-dim); overflow: hidden; display: flex; flex-direction: column; }
+        .code-header { background: #0a0c1a; padding: 0.8rem 1.2rem; font-size: 0.9rem; border-bottom: 1px solid var(--border-dim); color: var(--primary); display: flex; justify-content: space-between; }
+        .editor-container { display: flex; direction: ltr; flex: 1; }
+        .line-numbers { background: #070915; padding: 1rem 0.5rem; text-align: right; font-family: monospace; font-size: 1rem; color: #4a5568; border-left: 1px solid var(--border-dim); user-select: none; line-height: 1.5; min-width: 40px; }
+        #codeInput { border: none; resize: vertical; min-height: 400px; font-family: monospace; font-size: 1rem; line-height: 1.5; background: transparent; padding: 1rem; width: 100%; color: #eef5ff; outline: none; }
+
+        .env-list { margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .env-item { display: flex; gap: 10px; margin-bottom: 1rem; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 15px; border: 1px solid var(--border-dim); }
+        .env-item input { flex: 1; background: var(--bg-deep); border: 1px solid var(--border-dim); border-radius: 10px; padding: 0.8rem; color: white; font-family: monospace; outline: none; }
+        .env-item input:focus { border-color: var(--primary); }
+        .delete-env { background: var(--danger); color: white; border: none; border-radius: 10px; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
+        .delete-env:hover { background: #ff0044; transform: scale(1.05); }
+        
+        .btn-full { width: 100%; background: transparent; border: 2px dashed var(--primary); padding: 1rem; border-radius: 15px; color: var(--primary); font-weight: bold; cursor: pointer; margin-bottom: 2rem; transition: 0.3s; }
+        .btn-full:hover { background: rgba(0, 210, 255, 0.1); }
+
+        .deploy-btn { background: var(--gradient-btn); border: none; width: 100%; padding: 1.2rem; font-size: 1.4rem; font-weight: bold; border-radius: 60px; color: white; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 20px rgba(0, 210, 255, 0.3); }
+        .deploy-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 210, 255, 0.5); }
+        .deploy-btn.update-mode { background: var(--gradient-update); box-shadow: 0 5px 20px rgba(170, 102, 255, 0.3); }
+        
+        .cancel-btn { background: transparent; border: 2px solid var(--danger); width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: bold; border-radius: 60px; color: var(--danger); cursor: pointer; margin-top: 1rem; transition: 0.3s; display: none; }
+        .cancel-btn:hover { background: var(--danger); color: white; }
+
+        .terminal { background: var(--terminal-bg); border-radius: 15px; padding: 1.5rem; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--border-dim); max-height: 300px; overflow-y: auto; margin-top: 1.5rem; }
+        .log-line { color: #00ff99; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .log-error { color: #ff3366; }
+        
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
+        .project-card { background: var(--code-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border-dim); transition: 0.3s; position: relative; overflow: hidden; }
+        .project-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--success); }
+        .project-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.15); }
+        .project-name { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 15px; display: block; }
+        .project-actions { display: flex; gap: 10px; }
+        .project-actions button { flex: 1; padding: 0.8rem; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
+        .btn-edit { background: rgba(255, 170, 0, 0.1); color: var(--warning); border: 1px solid var(--warning) !important; }
+        .btn-edit:hover { background: var(--warning); color: #000; }
+        .btn-visit { background: rgba(0, 255, 153, 0.1); color: var(--success); border: 1px solid var(--success) !important; }
+        .btn-visit:hover { background: var(--success); color: #000; }
+        .final-url-box { margin-top: 15px; padding: 15px; background: rgba(0,255,153,0.1); border: 1px solid var(--success); border-radius: 12px; text-align: center; }
+        .final-url-box a { color: var(--success); text-decoration: none; font-weight: bold; font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-<div class="progress-bar-container" id="progressContainer">
-    <div class="progress-bar" id="progressBar"></div>
-</div>
+<div class="progress-bar-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
 
 <div class="dashboard-container">
     <div class="header">
-        <div class="logo-area">
-            <span>🚀</span>
-            <span>نجم كلاود | Najm Cloud</span>
-        </div>
-        <div class="badge-version">v15.0 · Unified Protocol</div>
+        <div class="logo-area">🚀 نجم كلاود (النسخة العسكرية v16)</div>
+        <div class="badge-version">Production Grade - 100% Sync</div>
     </div>
 
-    <div class="developer-card" id="developerCard">
-        <div class="developer-label" style="display: flex; gap: 12px; margin-bottom: 12px;">
-            <span>🔑</span>
-            <span>معرف المطور (Developer ID)</span>
-        </div>
+    <div class="developer-card">
+        <div style="margin-bottom: 10px; color: var(--text-muted);">🔑 معرف المطور (يجب أن يكون باللغة الإنجليزية وبدون مسافات)</div>
         <div class="developer-input-wrapper">
-            <input type="text" id="userIdInput" placeholder="مثال: najm_dev_001" dir="ltr">
-            <button id="saveUserIdBtn" class="save-id-btn">💾 حفظ المعرف</button>
-            <button id="scanProjectsBtn" class="scan-projects-btn">📡 مسح المشاريع (20 صفحة)</button>
+            <input type="text" id="userIdInput" placeholder="أدخل معرفك هنا (مثال: najm_dev)" dir="ltr">
+            <button class="btn" onclick="saveUserId()">💾 حفظ وإعداد</button>
+            <button class="btn" onclick="startDeepScan()" style="background: rgba(0,210,255,0.1);">📡 مسح شامل للخوادم</button>
         </div>
-        <div id="userIdStatus" class="id-status"></div>
     </div>
 
     <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="editor"><span>✏️</span> محرر النشر</button>
-        <button class="tab-btn" data-tab="projects"><span>📁</span> مشاريعي</button>
-        <button class="tab-btn" data-tab="history"><span>📜</span> سجل النشر</button>
+        <button class="tab-btn active" data-tab="editor">✏️ بيئة التطوير والنشر</button>
+        <button class="tab-btn" data-tab="projects">📁 إدارة المشاريع</button>
     </div>
 
-    <div id="editorTab" class="tab-content" style="display: block;">
+    <div id="editorTab" class="tab-content">
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-title"><span>⚙️</span> <span>معلومات المشروع</span></div>
+                <div class="card-title">⚙️ إعدادات المشروع</div>
                 <div class="input-group">
-                    <label>📦 اسم المشروع (Project Name)</label>
-                    <input type="text" id="projectName" placeholder="مثال: my-telegram-bot" dir="ltr">
+                    <label>اسم المشروع (Project Name)</label>
+                    <input type="text" id="projectName" placeholder="my-awesome-bot" dir="ltr">
                 </div>
-                <div class="card-title" style="margin-top: 8px;"><span>💻</span> <span>محرر الأكواد</span></div>
+                <div class="card-title" style="margin-top: 2rem;">💻 محرر الأكواد (Code Editor)</div>
                 <div class="code-editor-wrapper">
-                    <div class="code-header"><span>📄 Editor</span><span id="editModeBadge"></span></div>
+                    <div class="code-header"><span>index.js</span><span id="modeBadge" style="color:var(--warning);"></span></div>
                     <div class="editor-container">
-                        <div class="line-numbers" id="lineNumbers">1<br>2<br>3</div>
-                        <textarea id="codeInput" placeholder="// اكتب كود البوت هنا ..."></textarea>
+                        <div class="line-numbers" id="lineNumbers">1</div>
+                        <textarea id="codeInput" placeholder="// ابدأ كتابة الكود الخاص بك هنا...
+async function handler(request) {
+    return new Response('Hello Najm Cloud!');
+}"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title"><span>🔐</span> <span>المتغيرات البيئية (Secrets)</span></div>
+                <div class="card-title">🔐 الأسرار والمتغيرات (Environment Variables)</div>
                 <div id="envVarsContainer" class="env-list"></div>
-                <button id="addEnvBtn" class="btn-secondary">+ إضافة متغير</button>
+                <button class="btn-full" onclick="addEnvRow()">+ إضافة متغير جديد (Secret)</button>
                 
-                <div class="deploy-button-group">
-                    <button id="deployBtn" class="deploy-btn"><span>🚀</span> نشر المشروع</button>
-                    <button id="cancelEditBtn" class="cancel-edit-btn" style="display: none;"><span>✖</span> إلغاء</button>
-                </div>
+                <button id="deployBtn" class="deploy-btn" onclick="executeDeployment()">🚀 إطلاق المشروع للسحابة</button>
+                <button id="cancelEditBtn" class="cancel-btn" onclick="exitEditMode()">✖ إلغاء وضع التعديل وتفريغ الحقول</button>
                 
-                <div class="terminal-section">
-                    <div class="card-title" style="margin-bottom: 0.5rem;"><span>📟</span> <span>سجل النشر</span></div>
-                    <div id="terminalLogs" class="terminal"><div class="log-line">⏳ جاهز للنشر...</div></div>
-                    <div id="deployResult" style="margin-top: 12px;"></div>
+                <div class="card-title" style="margin-top: 2.5rem;">📟 وحدة التحكم (Terminal)</div>
+                <div id="terminal" class="terminal">
+                    <div class="log-line" style="color:var(--text-muted);">> النظام جاهز لتلقي الأوامر...</div>
                 </div>
+                <div id="deployResult"></div>
             </div>
         </div>
     </div>
 
     <div id="projectsTab" class="tab-content" style="display: none;">
         <div class="card">
-            <div class="card-title"><span>📁</span> <span>مشاريعي</span></div>
-            <div id="projectsGrid" class="projects-grid"><div class="empty-state">✨ قم بحفظ معرف المطور واضغط "مسح المشاريع"</div></div>
-        </div>
-    </div>
-
-    <div id="historyTab" class="tab-content" style="display: none;">
-        <div class="card">
-            <div class="card-title"><span>📜</span> <span>سجل النشر</span></div>
-            <div id="historyLogs" class="history-logs"><div class="empty-state">لا يوجد سجل</div></div>
+            <div class="card-title">📁 المشاريع النشطة في السحابة</div>
+            <div id="projectsGrid" class="projects-grid">
+                <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted); border:2px dashed var(--border-dim); border-radius:20px;">
+                    <h2>لم يتم جلب المشاريع بعد</h2>
+                    <p style="margin-top:10px;">أدخل معرفك واضغط على "مسح شامل للخوادم" للبحث في قاعدة البيانات</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let currentEditProject = null;
-    let projectsCache = [];
-    let deploymentHistory = [];
-    let savedEnvBackup = null;
+    // --- 1. الإعدادات الأساسية وإدارة الذاكرة ---
+    let projectsDatabase = new Map();
+    let currentEditPid = null;
 
-    function safeScrubber(rawText) {
-        if (!rawText) return '';
-        let cleaned = rawText;
-        cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
-        cleaned = cleaned.replace(/<\/div>/gi, '\n');
-        cleaned = cleaned.replace(/<\/p>/gi, '\n');
-        cleaned = cleaned.replace(/<[^>]*>/g, '');
-        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
-        cleaned = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        return cleaned;
-    }
+    window.onload = () => {
+        const savedId = localStorage.getItem('najm_uid_v16');
+        if (savedId) document.getElementById('userIdInput').value = savedId;
+        addEnvRow('BOT_TOKEN', '');
+        syncLineNumbers();
+    };
 
-    function deepDecodeEntities(text, maxDepth = 10) {
-        if (!text || maxDepth === 0) return text || '';
-        let decoded = text;
-        const textarea = document.createElement('textarea');
-        textarea.innerHTML = decoded;
-        decoded = textarea.value;
-        const replacements = {
-            '&lt;': '<', '&gt;': '>', '&amp;': '&', '&quot;': '"',
-            '&#39;': "'", '&#x27;': "'", '&#x2F;': '/', '&#x60;': '`',
-            '&apos;': "'", '&nbsp;': ' ', '&#34;': '"', '&#38;': '&'
-        };
-        let changed = false;
-        for (const [entity, char] of Object.entries(replacements)) {
-            if (decoded.includes(entity)) {
-                decoded = decoded.replace(new RegExp(entity, 'g'), char);
-                changed = true;
-            }
-        }
-        if (changed || decoded !== text) {
-            return deepDecodeEntities(decoded, maxDepth - 1);
-        }
-        return decoded;
-    }
-
-    function extractBracketId(content) {
-        const purified = safeScrubber(content);
-        const pattern = /\[NAJM_ID:\s*([^\]]+)\]/i;
-        const match = pattern.exec(purified);
-        return match ? match[1].trim() : null;
-    }
-
-    function extractBracketProject(content) {
-        const purified = safeScrubber(content);
-        const pattern = /\[NAJM_PRJ:\s*([^\]]+)\]/i;
-        const match = pattern.exec(purified);
-        return match ? match[1].trim() : null;
-    }
-
-    function extractBracketPayload(content) {
-        const purified = safeScrubber(content);
-        const pattern = /\[NAJM_PAYLOAD_START\]([\s\S]*?)\[NAJM_PAYLOAD_END\]/i;
-        const match = pattern.exec(purified);
-        return match ? match[1].trim() : null;
-    }
-
-    function safeBase64Decode(base64Str) {
-        try {
-            let cleaned = base64Str.trim().replace(/\s/g, '');
-            cleaned = deepDecodeEntities(cleaned);
-            const binaryString = atob(cleaned);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-            return new TextDecoder('utf-8').decode(bytes);
-        } catch (e) {
-            return null;
+    function saveUserId() {
+        const id = document.getElementById('userIdInput').value.trim();
+        if (id) {
+            localStorage.setItem('najm_uid_v16', id);
+            termLog(`تم حفظ معرف المطور: ${id}`, 'success');
+        } else {
+            alert('يرجى كتابة المعرف أولاً');
         }
     }
 
-    function extractFullPayload(content) {
-        const base64Payload = extractBracketPayload(content);
-        if (!base64Payload) return null;
-        const decodedJson = safeBase64Decode(base64Payload);
-        if (!decodedJson) return null;
-        try {
-            const payload = JSON.parse(decodedJson);
-            return { code: payload.code || '', vars: payload.vars || {} };
-        } catch (e) {
-            return null;
-        }
-    }
+    // --- 2. الكاسحة الفولاذية (تدمير HTML وتنظيف البيانات) ---
+    function extractNajmPayloads(rawHtml) {
+        // تدمير أي كود HTML لضمان التصاق الـ Base64
+        let text = rawHtml.replace(/<[^>]+>/g, ' ');
+        // فك رموز تليجرام
+        text = text.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'");
+        // مسح المسافات الوهمية
+        text = text.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ');
 
-    async function fetchTelegramPage(beforeId = null) {
-        const baseUrl = 'https://t.me/s/nejm_njm';
-        const nocache = Date.now() + Math.random() * 1000000;
-        let url = `${baseUrl}?t=${nocache}&nocache=${nocache}`;
-        if (beforeId) url = `${baseUrl}?before=${beforeId}&t=${nocache}&nocache=${nocache}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_cb=${nocache}&_r=${Math.random()}`;
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return await response.text();
-    }
-
-    function getSmallestMessageId(html) {
-        const allMessages = [...html.matchAll(/data-post="([^"]+)"/g)];
-        if (allMessages.length === 0) return null;
-        const ids = allMessages.map(m => { const parts = m[1].split('/'); return parts[parts.length - 1]; });
-        ids.sort((a, b) => parseInt(a) - parseInt(b));
-        return ids[0];
-    }
-
-    function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
-        const projects = [];
-        const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
+        const results = [];
+        // البحث عن البلوك الفولاذي
+        const regex = /===NAJM_V16_START===\s*(.*?)\s*===NAJM_V16_END===/g;
         let match;
-        const normalizedTargetUserId = targetUserId.toString().toLowerCase().trim();
-        while ((match = messagePattern.exec(html)) !== null) {
-            const content = match[1];
-            const uid = extractBracketId(content);
-            const projectName = extractBracketProject(content);
-            if (uid && uid.toLowerCase().trim() === normalizedTargetUserId && projectName) {
-                const payload = extractFullPayload(content);
-                if (payload) {
-                    projects.push({
-                        name: projectName,
-                        code: payload.code,
-                        envVars: payload.vars,
-                        url: `https://vercelseifr.vercel.app/${encodeURIComponent(targetUserId)}/${encodeURIComponent(projectName)}`
-                    });
-                    if (targetProjectId && projectName === targetProjectId) {
-                        return { projects: [projects[projects.length - 1]], found: true };
-                    }
-                }
+        
+        while ((match = regex.exec(text)) !== null) {
+            try {
+                let b64 = match[1].replace(/\s/g, ''); // تنظيف Base64 كلياً
+                let decoded = decodeURIComponent(escape(atob(b64)));
+                results.push(JSON.parse(decoded));
+            } catch(e) {
+                console.error("Block extraction failed");
             }
         }
-        return { projects, lastMessageId: getSmallestMessageId(html), found: false };
+        return results;
     }
 
-    async function deepCrawlTelegram(userId, targetProjectId = null, maxDepth = 20) {
-        const allProjects = [];
-        let currentBeforeId = null;
-        let depth = 0;
-        addSystemLog(`🔍 بدء الزحف العميق للمطور: ${userId}`);
-        while (depth < maxDepth) {
-            depth++;
-            addSystemLog(`📡 الصفحة ${depth}...`);
+    // --- 3. نظام الزحف العميق (Deep Scanner) ---
+    async function startDeepScan() {
+        const uid = document.getElementById('userIdInput').value.trim().toLowerCase();
+        if (!uid) return alert('يجب حفظ المعرف قبل المسح!');
+
+        showProgress(true);
+        termLog(`بدء الزحف العميق لقواعد بيانات تليجرام للمعرف [${uid}]...`, 'warning');
+        projectsDatabase.clear();
+        
+        let beforeId = null;
+        let pagesScanned = 0;
+        const MAX_PAGES = 30; // يزحف لـ 30 صفحة للخلف لضمان جلب كل شيء
+
+        for (let i = 0; i < MAX_PAGES; i++) {
+            pagesScanned++;
+            termLog(`جاري مسح الطبقة ${pagesScanned}...`, 'primary');
             try {
-                const html = await fetchTelegramPage(currentBeforeId);
-                const { projects, lastMessageId, found } = extractProjectsFromPage(html, userId, targetProjectId);
-                if (targetProjectId && found) return projects;
-                allProjects.push(...projects);
-                if (!lastMessageId || lastMessageId === currentBeforeId) break;
-                currentBeforeId = lastMessageId;
-                await delay(300);
+                let url = `https://t.me/s/nejm_njm?t=${Date.now()}`;
+                if (beforeId) url += `&before=${beforeId}`;
+                
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_cb=${Date.now()}`;
+                const response = await fetch(proxyUrl);
+                const html = await response.text();
+
+                // استخراج البيانات
+                const payloads = extractNajmPayloads(html);
+                
+                payloads.forEach(p => {
+                    if (p.uid === uid) {
+                        // إضافة المشروع للمكتبة (أو تحديثه إذا كان هذا أحدث)
+                        if (!projectsDatabase.has(p.pid) || p.timestamp > projectsDatabase.get(p.pid).timestamp) {
+                            projectsDatabase.set(p.pid, {
+                                name: p.pid,
+                                code: p.code,
+                                envVars: p.vars,
+                                timestamp: p.timestamp,
+                                url: `https://vercelseifr.vercel.app/${encodeURIComponent(p.uid)}/${encodeURIComponent(p.pid)}`
+                            });
+                        }
+                    }
+                });
+
+                // البحث عن معرف الصفحة السابقة
+                const postMatches = [...html.matchAll(/data-post="nejm_njm\/(\d+)"/g)];
+                if (postMatches.length > 0) {
+                    beforeId = Math.min(...postMatches.map(m => parseInt(m[1])));
+                } else {
+                    break; // نهاية القناة
+                }
             } catch (error) {
-                addSystemLog(`⚠️ خطأ: ${error.message}`, true);
+                termLog(`حدث خطأ أثناء المسح: ${error.message}`, 'error');
                 break;
             }
         }
-        addSystemLog(`✅ اكتمل. تم العثور على ${allProjects.length} مشروع`);
-        return allProjects;
+
+        renderProjectsUI();
+        termLog(`✅ اكتمل المسح! تم العثور واستعادة ${projectsDatabase.size} مشاريع.`, 'success');
+        showProgress(false);
+        document.querySelector('[data-tab="projects"]').click();
     }
 
-    async function scanTelegramProjects(userId, specificProjectName = null) {
-        if (!userId) return [];
-        showProgress(true);
-        try {
-            return await deepCrawlTelegram(userId, specificProjectName, 20);
-        } catch (error) {
-            addSystemLog(`❌ فشل: ${error.message}`, true);
-            return [];
-        } finally {
-            showProgress(false);
-        }
-    }
-
-    function addProjectToCacheAndDisplay(project) {
-        const idx = projectsCache.findIndex(p => p.name === project.name);
-        if (idx !== -1) projectsCache[idx] = project;
-        else projectsCache.unshift(project);
-        renderProjects(projectsCache);
-        addSystemLog(`✨ تم إضافة "${project.name}"`, false, true);
-    }
-
-    function cancelEditMode() {
-        if (savedEnvBackup) {
-            const container = document.getElementById('envVarsContainer');
-            container.innerHTML = '';
-            Object.entries(savedEnvBackup).forEach(([k, v]) => container.appendChild(createEnvRow(k, v)));
-        }
-        currentEditProject = null;
-        document.getElementById('projectName').value = '';
-        document.getElementById('codeInput').value = '';
-        const btn = document.getElementById('deployBtn');
-        btn.innerHTML = '<span>🚀</span> نشر المشروع';
-        btn.classList.remove('update-mode');
-        document.getElementById('cancelEditBtn').style.display = 'none';
-        document.getElementById('editModeBadge').innerHTML = '';
-        savedEnvBackup = null;
-        updateLineNumbers();
-        addSystemLog('✖️ تم إلغاء التعديل');
-    }
-
-    function renderProjects(projects) {
-        const container = document.getElementById('projectsGrid');
-        if (!projects || projects.length === 0) {
-            container.innerHTML = '<div class="empty-state">✨ لا توجد مشاريع</div>';
+    // --- 4. واجهة إدارة المشاريع والاستعادة ---
+    function renderProjectsUI() {
+        const grid = document.getElementById('projectsGrid');
+        const projects = Array.from(projectsDatabase.values()).sort((a,b) => b.timestamp - a.timestamp);
+        
+        if (projects.length === 0) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; font-size:1.2rem;">لا توجد مشاريع مرتبطة بهذا المعرف. ابدأ بنشر مشروعك الأول!</div>';
             return;
         }
-        container.innerHTML = projects.map(p => `
+
+        grid.innerHTML = projects.map(p => `
             <div class="project-card">
-                <div class="project-card-header">
-                    <span class="project-name">📦 ${escapeHtml(p.name)}</span>
-                    <span class="project-status active">🟢 نشط</span>
+                <span class="project-name">${p.name}</span>
+                <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:15px;">
+                    آخر تحديث: ${new Date(p.timestamp).toLocaleString()}
                 </div>
                 <div class="project-actions">
-                    <button class="project-btn edit-btn" onclick="window.editProject('${escapeHtml(p.name)}')">✏️ تعديل</button>
-                    <button class="project-btn visit-btn" onclick="window.open('${p.url}', '_blank')">🔗 زيارة</button>
+                    <button class="btn-edit" onclick="loadProjectToEditor('${p.name}')">✏️ تعديل ومتابعة</button>
+                    <button class="btn-visit" onclick="window.open('${p.url}', '_blank')">🌍 زيارة الحاوية</button>
                 </div>
-                <div class="project-meta">🔗 ${p.url.substring(0, 50)}...</div>
             </div>
         `).join('');
     }
 
-    window.editProject = async function(projectName) {
-        const userId = getCurrentUserId();
-        if (!userId) { alert('حفظ معرف المطور أولاً'); return; }
-        showProgress(true);
-        addSystemLog(`🔍 البحث عن: ${projectName}`);
-        const projects = await scanTelegramProjects(userId, projectName);
-        const project = projects.find(p => p.name === projectName);
-        if (project) {
-            savedEnvBackup = collectEnvVars();
-            document.getElementById('projectName').value = project.name;
-            document.getElementById('codeInput').value = deepDecodeEntities(project.code);
-            const container = document.getElementById('envVarsContainer');
-            container.innerHTML = '';
-            if (project.envVars && typeof project.envVars === 'object') {
-                Object.entries(project.envVars).forEach(([k, v]) => {
-                    container.appendChild(createEnvRow(deepDecodeEntities(k), deepDecodeEntities(String(v)), null, true));
-                });
-            }
-            if (Object.keys(project.envVars || {}).length === 0) {
-                container.appendChild(createEnvRow('API_TOKEN', 'your_secret_123', null, true));
-            }
-            currentEditProject = projectName;
-            const btn = document.getElementById('deployBtn');
-            btn.innerHTML = '<span>🔄</span> تحديث المشروع';
-            btn.classList.add('update-mode');
-            document.getElementById('cancelEditBtn').style.display = 'flex';
-            document.getElementById('editModeBadge').innerHTML = '<span class="edit-mode-badge">✏️ تعديل: ' + escapeHtml(projectName) + '</span>';
-            addSystemLog(`✅ تم تحميل "${projectName}"`, false, true);
-            updateLineNumbers();
+    window.loadProjectToEditor = function(pid) {
+        const project = projectsDatabase.get(pid);
+        if (!project) return;
+
+        // 1. استعادة اسم المشروع
+        document.getElementById('projectName').value = project.name;
+        // 2. استعادة الكود الصافي للمحرر
+        document.getElementById('codeInput').value = project.code;
+        
+        // 3. إعادة بناء حقول المتغيرات (Secrets) من الصفر
+        const envContainer = document.getElementById('envVarsContainer');
+        envContainer.innerHTML = '';
+        if (project.envVars && Object.keys(project.envVars).length > 0) {
+            Object.entries(project.envVars).forEach(([key, val]) => {
+                addEnvRow(key, val);
+            });
         } else {
-            addSystemLog(`❌ لم يتم العثور على "${projectName}"`, true);
+            addEnvRow('', '');
         }
-        showProgress(false);
+
+        // 4. ضبط حالة الواجهة لوضع التعديل
+        currentEditPid = pid;
+        const deployBtn = document.getElementById('deployBtn');
+        deployBtn.innerHTML = '🔄 رفع التحديث للسحابة';
+        deployBtn.classList.add('update-mode');
+        document.getElementById('cancelEditBtn').style.display = 'block';
+        document.getElementById('modeBadge').innerText = ` [تعديل المشروع: ${pid}]`;
+        
+        syncLineNumbers();
         document.querySelector('[data-tab="editor"]').click();
+        termLog(`[${pid}] تم سحب بيانات المشروع بالكامل، المحرر جاهز.`, 'warning');
     };
 
-    async function performDeploy() {
-        const userId = getCurrentUserId();
-        if (!userId) { addLog('❌ معرف المطور مطلوب', true); return false; }
-        const projectName = document.getElementById('projectName').value.trim();
-        const codeContent = document.getElementById('codeInput').value;
-        if (!projectName) { addLog('❌ اسم المشروع مطلوب', true); return false; }
-        if (!codeContent) { addLog('❌ الكود مطلوب', true); return false; }
+    window.exitEditMode = function() {
+        currentEditPid = null;
+        document.getElementById('projectName').value = '';
+        document.getElementById('codeInput').value = '';
+        document.getElementById('envVarsContainer').innerHTML = '';
+        addEnvRow('API_TOKEN', '');
+        
+        const deployBtn = document.getElementById('deployBtn');
+        deployBtn.innerHTML = '🚀 إطلاق المشروع للسحابة';
+        deployBtn.classList.remove('update-mode');
+        document.getElementById('cancelEditBtn').style.display = 'none';
+        document.getElementById('modeBadge').innerText = '';
+        
+        syncLineNumbers();
+        termLog('تم تفريغ المحرر وإلغاء وضع التعديل.', 'primary');
+    };
+
+    // --- 5. نظام النشر الفولاذي (ثبات تام للمعلومات) ---
+    async function executeDeployment() {
+        const uid = document.getElementById('userIdInput').value.trim().toLowerCase();
+        const pid = document.getElementById('projectName').value.trim();
+        const code = document.getElementById('codeInput').value;
+        
+        if (!uid || !pid || !code) {
+            return alert("تأكد من إدخال المعرف، اسم المشروع، والكود!");
+        }
+
+        // جمع المتغيرات
+        const vars = {};
+        document.querySelectorAll('.env-item').forEach(item => {
+            const key = item.querySelector('.env-key').value.trim();
+            const val = item.querySelector('.env-value').value;
+            if (key) vars[key] = val;
+        });
+
         showProgress(true);
-        clearLogs();
-        addLog('🔄 بدء النشر...');
-        addLog(`👤 ${userId} | 📦 ${projectName}${currentEditProject ? ' (تحديث)' : ''}`);
-        const envVars = collectEnvVars();
-        addLog(`🔑 ${Object.keys(envVars).length} متغير`);
+        document.getElementById('deployBtn').disabled = true;
+        document.getElementById('deployResult').innerHTML = '';
+        termLog(`بدء تغليف بيانات المشروع [${pid}]...`, 'primary');
+
         try {
             const response = await fetch('https://najm-backend.60jrhwm.workers.dev', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, project_name: projectName, code: codeContent, environment_variables: envVars })
+                body: JSON.stringify({
+                    user_id: uid,
+                    project_name: pid,
+                    code: code,
+                    environment_variables: vars
+                })
             });
-            if (response.ok) {
-                addLog('✅ نشر ناجح!', false, true);
-                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(userId)}/${encodeURIComponent(projectName)}`;
-                addLog(`🌍 ${finalUrl}`, false, true);
-                document.getElementById('deployResult').innerHTML = `<div class="final-url">🚀 نشر ناجح! <a href="${finalUrl}" target="_blank" style="color: var(--success);">${finalUrl}</a></div>`;
-                addToHistory(projectName, userId, 'success', 'نشر ناجح');
-                addProjectToCacheAndDisplay({ name: projectName, code: codeContent, envVars: envVars, url: finalUrl });
-                showProgress(false);
-                return true;
-            } else {
-                throw new Error('فشل النشر');
+
+            if (!response.ok) throw new Error("رفض الخادم معالجة الطلب");
+
+            const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(uid)}/${encodeURIComponent(pid)}`;
+            
+            termLog(`تم النشر بنجاح! الحاوية جاهزة.`, 'success');
+            document.getElementById('deployResult').innerHTML = `
+                <div class="final-url-box">
+                    تم الإطلاق! الرابط المباشر:<br>
+                    <a href="${finalUrl}" target="_blank">${finalUrl}</a>
+                </div>
+            `;
+            
+            // تحديث المكتبة المحلية فوراً
+            projectsDatabase.set(pid, { name: pid, code: code, envVars: vars, timestamp: Date.now(), url: finalUrl });
+            renderProjectsUI();
+
+            // ⚠️ سر الاحترافية: لا نمسح أي حقل هنا! المستخدم يكمل عمله!
+            if (!currentEditPid) {
+                // إذا كان مشروع جديد، نحوله فوراً لوضع التعديل ليتابع
+                currentEditPid = pid;
+                const deployBtn = document.getElementById('deployBtn');
+                deployBtn.innerHTML = '🔄 رفع التحديث للسحابة';
+                deployBtn.classList.add('update-mode');
+                document.getElementById('cancelEditBtn').style.display = 'block';
+                document.getElementById('modeBadge').innerText = ` [مستمر في التعديل: ${pid}]`;
             }
-        } catch (err) {
-            addLog(`💥 ${err.message}`, true);
-            addToHistory(projectName, userId, 'error', err.message);
-            showProgress(false);
-            return false;
+
+        } catch (error) {
+            termLog(`فشل النشر: ${error.message} - تأكد من رابط Worker`, 'error');
         }
+
+        document.getElementById('deployBtn').disabled = false;
+        showProgress(false);
     }
 
-    function createEnvRow(keyVal = '', valVal = '', id = null, showAsText = false) {
+    // --- 6. وظائف مساعدة ---
+    function addEnvRow(key = '', val = '') {
         const div = document.createElement('div');
         div.className = 'env-item';
-        const keyInput = document.createElement('input');
-        keyInput.type = 'text';
-        keyInput.className = 'env-key';
-        keyInput.placeholder = 'KEY';
-        keyInput.dir = 'ltr';
-        keyInput.value = keyVal;
-        const wrapper = document.createElement('div');
-        wrapper.className = 'env-value-wrapper';
-        const valueInput = document.createElement('input');
-        valueInput.type = showAsText ? 'text' : 'password';
-        valueInput.className = 'env-value';
-        valueInput.placeholder = 'VALUE';
-        valueInput.dir = 'ltr';
-        valueInput.value = valVal;
-        const toggleBtn = document.createElement('button');
-        toggleBtn.innerText = showAsText ? '🙈' : '👁️';
-        toggleBtn.className = 'toggle-pwd';
-        toggleBtn.onclick = () => {
-            if (valueInput.type === 'password') { valueInput.type = 'text'; toggleBtn.innerText = '🙈'; }
-            else { valueInput.type = 'password'; toggleBtn.innerText = '👁️'; }
-        };
-        const delBtn = document.createElement('button');
-        delBtn.innerText = '✖';
-        delBtn.className = 'delete-env';
-        delBtn.onclick = () => div.remove();
-        wrapper.appendChild(valueInput);
-        wrapper.appendChild(toggleBtn);
-        div.appendChild(keyInput);
-        div.appendChild(wrapper);
-        div.appendChild(delBtn);
-        return div;
+        div.innerHTML = `
+            <input type="text" class="env-key" placeholder="اسم المتغير (KEY)" value="${key}" dir="ltr">
+            <input type="text" class="env-value" placeholder="قيمة المتغير (VALUE)" value="${val}" dir="ltr">
+            <button class="delete-env" onclick="this.parentElement.remove()" title="حذف المتغير">✖</button>
+        `;
+        document.getElementById('envVarsContainer').appendChild(div);
     }
 
-    function collectEnvVars() {
-        const items = document.querySelectorAll('.env-item');
-        const obj = {};
-        items.forEach(item => {
-            const key = item.querySelector('.env-key')?.value.trim();
-            const val = item.querySelector('.env-value')?.value;
-            if (key) obj[key] = val;
-        });
-        return obj;
-    }
-
-    function addLog(msg, isErr = false, isSuc = false) {
-        const term = document.getElementById('terminalLogs');
-        const line = document.createElement('div');
-        line.className = 'log-line';
-        if (isErr) line.classList.add('log-error');
-        if (isSuc) line.classList.add('log-success');
-        line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        term.appendChild(line);
+    function termLog(msg, type = 'success') {
+        const term = document.getElementById('terminal');
+        let color = '#00ff99';
+        if (type === 'error') color = '#ff3366';
+        if (type === 'warning') color = '#ffaa00';
+        if (type === 'primary') color = '#00d2ff';
+        
+        const time = new Date().toLocaleTimeString();
+        term.innerHTML += `<div class="log-line" style="color:${color}">[${time}] > ${msg}</div>`;
         term.scrollTop = term.scrollHeight;
     }
-    function addSystemLog(msg, isErr = false, isSuc = false) { addLog(msg, isErr, isSuc); }
-    function clearLogs() { document.getElementById('terminalLogs').innerHTML = ''; }
-    function showProgress(show) {
-        const c = document.getElementById('progressContainer');
-        const b = document.getElementById('progressBar');
-        if (show) {
-            c.classList.add('active');
-            b.style.width = '0%';
-            let w = 0;
-            setInterval(() => { if (w >= 90) clearInterval; w += 10; b.style.width = w + '%'; }, 200);
-            setTimeout(() => b.style.width = '100%', 1500);
-        } else {
-            b.style.width = '100%';
-            setTimeout(() => { c.classList.remove('active'); b.style.width = '0%'; }, 500);
-        }
-    }
-    function updateLineNumbers() {
-        const text = document.getElementById('codeInput').value;
-        const lines = text.split('\n').length;
-        let html = '';
-        for (let i = 1; i <= lines; i++) html += i + '<br>';
-        document.getElementById('lineNumbers').innerHTML = html || '1<br>';
-    }
-    function getCurrentUserId() { return document.getElementById('userIdInput').value.trim(); }
-    function saveUserId() {
-        const id = document.getElementById('userIdInput').value.trim();
-        if (id) { localStorage.setItem('najm_developer_id', id); document.getElementById('userIdStatus').innerHTML = `✅ تم حفظ: ${escapeHtml(id)}`; }
-        else { localStorage.removeItem('najm_developer_id'); document.getElementById('userIdStatus').innerHTML = `⚠️ أدخل معرف المطور`; }
-    }
-    function loadStoredUserId() { const s = localStorage.getItem('najm_developer_id'); if (s) { document.getElementById('userIdInput').value = s; document.getElementById('userIdStatus').innerHTML = `✅ المعرف: ${escapeHtml(s)}`; } }
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-    function loadHistory() { const s = localStorage.getItem('najm_deployment_history'); if (s) { try { deploymentHistory = JSON.parse(s); } catch(e) {} } renderHistory(); }
-    function saveHistory() { localStorage.setItem('najm_deployment_history', JSON.stringify(deploymentHistory.slice(0, 10))); renderHistory(); }
-    function addToHistory(projectName, userId, status, message) { deploymentHistory.unshift({ project: projectName, userId, status, message, time: new Date().toISOString() }); if (deploymentHistory.length > 10) deploymentHistory.pop(); saveHistory(); }
-    function renderHistory() {
-        const c = document.getElementById('historyLogs');
-        if (!deploymentHistory.length) { c.innerHTML = '<div class="empty-state">📭 لا يوجد سجل</div>'; return; }
-        c.innerHTML = deploymentHistory.map(h => `<div class="history-item"><div><div class="history-project">📦 ${escapeHtml(h.project)}</div><div class="history-time">${new Date(h.time).toLocaleString()}</div></div><div class="history-status ${h.status === 'success' ? 'log-success' : 'log-error'}">${h.status === 'success' ? '✅ نجاح' : '❌ فشل'}</div></div>`).join('');
+
+    function syncLineNumbers() {
+        const lines = document.getElementById('codeInput').value.split('\n').length;
+        document.getElementById('lineNumbers').innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
     }
 
-    document.getElementById('saveUserIdBtn').onclick = saveUserId;
-    document.getElementById('addEnvBtn').onclick = () => document.getElementById('envVarsContainer').appendChild(createEnvRow('', ''));
-    document.getElementById('deployBtn').onclick = async () => { const b = document.getElementById('deployBtn'); b.disabled = true; await performDeploy(); b.disabled = false; };
-    document.getElementById('cancelEditBtn').onclick = cancelEditMode;
-    document.getElementById('scanProjectsBtn').onclick = async () => { const uid = getCurrentUserId(); if (!uid) { alert('حفظ معرف المطور أولاً'); return; } const projs = await scanTelegramProjects(uid); projectsCache = projs; renderProjects(projs); document.querySelector('[data-tab="projects"]').click(); };
-    document.getElementById('codeInput').addEventListener('input', updateLineNumbers);
-    document.getElementById('codeInput').addEventListener('scroll', () => document.getElementById('lineNumbers').scrollTop = document.getElementById('codeInput').scrollTop);
-    document.querySelectorAll('.tab-btn').forEach(btn => { btn.onclick = () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none'); const tab = btn.dataset.tab; if (tab === 'editor') document.getElementById('editorTab').style.display = 'block'; if (tab === 'projects') document.getElementById('projectsTab').style.display = 'block'; if (tab === 'history') { document.getElementById('historyTab').style.display = 'block'; renderHistory(); } }; });
-
-    loadStoredUserId();
-    loadHistory();
-    const ec = document.getElementById('envVarsContainer');
-    ec.innerHTML = '';
-    ec.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
-    updateLineNumbers();
-    if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// نجم كلاود v15.0
-console.log("Najm Cloud Active");
-
-async function handler(request) {
-    return new Response(JSON.stringify({
-        message: "مرحباً من نجم كلاود!",
-        version: "15.0",
-        status: "active"
-    }), {
-        headers: { "Content-Type": "application/json" }
+    document.getElementById('codeInput').addEventListener('input', syncLineNumbers);
+    document.getElementById('codeInput').addEventListener('scroll', function() {
+        document.getElementById('lineNumbers').scrollTop = this.scrollTop;
     });
-}`;
-        updateLineNumbers();
-    }
-    if (!document.getElementById('projectName').value) document.getElementById('projectName').value = 'my-first-project';
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab + 'Tab').style.display = 'block';
+        };
+    });
 </script>
 </body>
 </html>
