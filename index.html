@@ -27,7 +27,6 @@
             --terminal-bg: #05070f;
             --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
             --developer-glow: rgba(0, 210, 255, 0.15);
-            --card-hover: rgba(0, 210, 255, 0.05);
         }
 
         body {
@@ -490,7 +489,7 @@
             <span>🚀</span>
             <span>نجم كلاود | Najm Cloud</span>
         </div>
-        <div class="badge-version">v6.0 · Ultimate Stable Engine</div>
+        <div class="badge-version">v7.0 · Atomic Clean Engine</div>
     </div>
 
     <div class="developer-card" id="developerCard">
@@ -569,7 +568,24 @@
     let currentEditProject = null;
     let projectsCache = [];
     let deploymentHistory = [];
-    let savedEnvBackup = null; // For undo support during edit
+    let savedEnvBackup = null;
+
+    // ==================== ATOMIC CLEANING: Remove all HTML, NBSP, zero-width spaces, line breaks ====================
+    function atomicClean(rawText) {
+        if (!rawText) return '';
+        let cleaned = rawText;
+        // Remove zero-width spaces and other invisible characters
+        cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
+        // Replace &nbsp; with space
+        cleaned = cleaned.replace(/&nbsp;/g, ' ');
+        // Replace multiple line breaks with single newline
+        cleaned = cleaned.replace(/\r\n|\r|\n/g, '\n');
+        // Remove all HTML tags
+        cleaned = cleaned.replace(/<[^>]*>/g, ' ');
+        // Collapse multiple spaces
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        return cleaned;
+    }
 
     // ==================== Enhanced HTML Entity Decoding ====================
     function decodeHtmlEntities(text) {
@@ -589,21 +605,34 @@
         return decoded;
     }
 
-    // ==================== Extract JSON from METADATA Block (Case-Insensitive + Trim) ====================
-    function extractMetadataJSON(content) {
-        const metadataPattern = /---\s*METADATA\s*---\s*([\s\S]*?)\s*---\s*METADATA\s*---/i;
-        const match = metadataPattern.exec(content);
-        if (!match) return null;
+    // ==================== Extract METADATA with Atomic Cleaning + Regex Fallback ====================
+    function extractMetadataWithFallback(content) {
+        // First try: Atomic cleaning + JSON parse
+        const cleanedContent = atomicClean(content);
+        const metadataPattern = /---\s*METADATA\s*---\s*({[\s\S]*?})\s*---\s*METADATA\s*---/i;
+        const match = metadataPattern.exec(cleanedContent);
         
-        let jsonStr = match[1].trim();
-        jsonStr = jsonStr.replace(/<[^>]*>/g, '');
-        jsonStr = decodeHtmlEntities(jsonStr);
-        
-        try {
-            return JSON.parse(jsonStr);
-        } catch (e) {
-            return null;
+        if (match) {
+            try {
+                const parsed = JSON.parse(match[1]);
+                if (parsed.uid && parsed.pid) return parsed;
+            } catch (e) {}
         }
+        
+        // Second try: Regex fallback - search for uid and pid directly in raw content
+        const uidMatch = content.match(/"uid"\s*:\s*"([^"]+)"/i);
+        const pidMatch = content.match(/"pid"\s*:\s*"([^"]+)"/i);
+        
+        if (uidMatch && pidMatch) {
+            return {
+                uid: uidMatch[1],
+                pid: pidMatch[1],
+                code: null,
+                env: null
+            };
+        }
+        
+        return null;
     }
 
     // ==================== Extract Code from Message ====================
@@ -646,14 +675,15 @@
         return envVars;
     }
 
-    // ==================== Fetch with Cache Breaking (Double Layer) ====================
+    // ==================== TRIPLE CACHE BUSTER ====================
     async function fetchTelegramPage(beforeId = null) {
         const baseUrl = 'https://t.me/s/nejm_njm';
-        let url = baseUrl + '?t=' + Date.now();
+        const nocache = Date.now() + Math.random() * 1000000;
+        let url = `${baseUrl}?t=${nocache}&nocache=${nocache}`;
         if (beforeId) {
-            url = `${baseUrl}?before=${beforeId}&t=${Date.now()}`;
+            url = `${baseUrl}?before=${beforeId}&t=${nocache}&nocache=${nocache}`;
         }
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_cb=${Date.now()}`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}&_cb=${nocache}&_r=${Math.random()}`;
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.text();
@@ -668,10 +698,10 @@
             return parts[parts.length - 1];
         });
         ids.sort((a, b) => parseInt(a) - parseInt(b));
-        return ids[0]; // Smallest ID for "before" pagination
+        return ids[0];
     }
 
-    // ==================== Extract Projects from Page ====================
+    // ==================== Extract Projects from Page with Enhanced Logic ====================
     function extractProjectsFromPage(html, targetUserId, targetProjectId = null) {
         const projects = [];
         const messagePattern = /<div class="tgme_widget_message"[^>]*>([\s\S]*?)(?=<div class="tgme_widget_message"|<div class="tgme_widget_message_bubble)/g;
@@ -679,7 +709,7 @@
         
         while ((match = messagePattern.exec(html)) !== null) {
             const content = match[1];
-            const metadata = extractMetadataJSON(content);
+            const metadata = extractMetadataWithFallback(content);
             
             if (metadata && metadata.uid && metadata.uid.toString().toLowerCase().trim() === targetUserId.toLowerCase().trim()) {
                 const projectName = metadata.pid;
@@ -763,6 +793,7 @@
             projectsCache.unshift(project);
         }
         renderProjects(projectsCache);
+        addSystemLog(`✨ تمت إضافة المشروع "${project.name}" إلى قائمة المشاريع فوراً`, false, true);
     }
 
     // ==================== Reset Edit Mode with Safety ====================
@@ -1031,13 +1062,13 @@
     envContainer.appendChild(createEnvRow('API_TOKEN', 'your_secret_123'));
     updateLineNumbers();
     if (!document.getElementById('codeInput').value) {
-        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود v6.0
-console.log("Najm Cloud - Ultimate Stable Engine Active");
+        document.getElementById('codeInput').value = `// مرحباً بك في منصة نجم كلاود v7.0
+console.log("Najm Cloud - Atomic Clean Engine Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
         message: "مرحباً من نجم كلاود!",
-        version: "6.0",
+        version: "7.0",
         status: "active",
         timestamp: new Date().toISOString()
     }), {
