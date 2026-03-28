@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نجم كلاود | IDE Edition v17.0</title>
+    <title>نجم كلاود | IDE Edition v18.5</title>
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -20,15 +23,24 @@
         .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); width: 0%; transition: width 0.3s ease-out; box-shadow: 0 0 10px var(--primary); }
         .progress-bar-container.active { opacity: 1; }
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-deep); } ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 8px; }
+        
         .dashboard-container { max-width: 1600px; margin: 0 auto; }
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 2px solid var(--primary); padding-bottom: 1rem; }
         .logo-area { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
         .badge-version { background: var(--card-bg); padding: 0.3rem 0.8rem; border-radius: 40px; font-size: 0.8rem; border: 1px solid var(--primary); color: var(--primary); }
-        .developer-card { background: linear-gradient(135deg, var(--card-bg) 0%, #0f1225 100%); border-radius: 20px; padding: 1.2rem 1.8rem; margin-bottom: 2rem; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(0, 210, 255, 0.15); }
-        .developer-input-wrapper { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .developer-input-wrapper input { flex: 1; background: var(--code-bg); border: 1px solid var(--primary); border-radius: 60px; padding: 0.9rem 1.5rem; color: var(--text-light); }
+        
+        /* شاشة تسجيل الدخول الجديدة */
+        .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; }
+        .login-box { background: linear-gradient(135deg, var(--card-bg) 0%, #0f1225 100%); padding: 4rem 3rem; border-radius: 24px; text-align: center; border: 1px solid var(--primary); box-shadow: 0 0 40px rgba(0,210,255,0.15); max-width: 500px; width: 100%; }
+        .login-box h2 { font-size: 2rem; margin-bottom: 10px; color: var(--text-light); }
+        .login-box p { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem; }
+        .google-btn-wrapper { display: flex; justify-content: center; margin-top: 20px; }
+
+        /* كرت المستخدم (بعد الدخول) */
+        .user-profile-card { background: var(--card-bg); border-radius: 20px; padding: 1.2rem 1.8rem; margin-bottom: 2rem; border: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .btn-action { background: transparent; border: 1px solid var(--primary); border-radius: 60px; padding: 0.7rem 1.5rem; color: var(--primary); font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-action:hover { background: var(--primary); color: var(--bg-deep); }
+        
         .tabs-nav { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-dim); padding-bottom: 0.5rem; }
         .tab-btn { background: transparent; border: none; padding: 0.8rem 1.5rem; color: var(--text-muted); font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 12px; transition: 0.3s; }
         .tab-btn.active { color: var(--primary); background: rgba(0, 210, 255, 0.1); border-bottom: 2px solid var(--primary); }
@@ -76,6 +88,7 @@
         .env-key, .env-value { flex: 1; background: var(--code-bg); border: 1px solid var(--border-dim); border-radius: 12px; padding: 0.5rem; color: var(--text-light); }
         .deploy-btn { background: var(--gradient-btn); border: none; width: 100%; padding: 1rem; font-size: 1.3rem; font-weight: bold; border-radius: 60px; color: white; cursor: pointer; margin-top: 15px; transition: 0.3s; }
         .deploy-btn.update-mode { background: linear-gradient(95deg, #aa66ff, #6a1b9a); }
+        .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .terminal { background: var(--terminal-bg); border-radius: 20px; padding: 1rem; font-family: monospace; font-size: 0.8rem; border: 1px solid #2a2f4b; max-height: 180px; overflow-y: auto; margin-top: 15px; }
         .log-line { color: #b0ffd0; border-bottom: 1px dotted rgba(0,210,255,0.2); padding: 5px 0; white-space: pre-wrap; }
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
@@ -93,75 +106,109 @@
 
 <div class="dashboard-container">
     <div class="header">
-        <div class="logo-area">🚀 نجم كلاود | IDE Edition</div>
-        <div class="badge-version">v17.0 · Multi-File System</div>
+        <div class="logo-area">🚀 نجم كلاود | IDE</div>
+        <div class="badge-version">v18.5 · Enterprise Security</div>
     </div>
 
-    <div class="developer-card">
-        <div style="margin-bottom:10px;">🔑 معرف المطور الخاص بك</div>
-        <div class="developer-input-wrapper">
-            <input type="text" id="userIdInput" placeholder="مثال: najm_dev" dir="ltr">
-            <button class="btn-action" onclick="saveUserId()">💾 حفظ</button>
-            <button class="btn-action" onclick="scanDatabaseProjects()">📡 تحميل المشاريع</button>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div style="font-size: 4rem; margin-bottom: 15px;">☁️</div>
+            <h2>مرحباً بك في مساحتك السحابية</h2>
+            <p>منصة التطوير الاحترافية. يرجى تسجيل الدخول للوصول إلى بيئة العمل والمشاريع الخاصة بك.</p>
+            
+            <div class="google-btn-wrapper">
+                <div id="g_id_onload"
+                     data-client_id="782920953457-7ao8lda0g1lb8r4df27ir5s8db9lrjnb.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleGoogleLogin"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="pill"
+                     data-theme="filled_black"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="editor">✏️ محرر النشر</button>
-        <button class="tab-btn" data-tab="projects">📁 مشاريعي</button>
-    </div>
-
-    <div id="editorTab" class="tab-content">
-        <div class="dashboard-grid">
-            <div class="card" style="display: flex; flex-direction: column;">
-                <div class="card-title">⚙️ معلومات المشروع</div>
-                <div style="margin-bottom: 1rem;">
-                    <input type="text" id="projectName" placeholder="اسم المشروع (مثال: my-bot)" dir="ltr" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--code-bg); border:1px solid var(--border-dim); color:white;">
+    <div id="mainWorkspace" style="display: none;">
+        
+        <div class="user-profile-card">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 2rem;">👨‍💻</div>
+                <div>
+                    <div id="userNameDisplay" style="color: var(--primary); font-weight: bold; font-size: 1.2rem;"></div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);"><span style="color:var(--success);">●</span> متصل بالنظام السحابي الآمن</div>
                 </div>
-                <div class="card-title">💻 مستكشف الملفات</div>
-                <div class="ide-container">
-                    <div class="file-sidebar">
-                        <div class="sidebar-header">
-                            <button onclick="createNewFile()">📄 ملف جديد</button>
-                            <button onclick="createNewFolder()">📁 مجلد جديد</button>
-                        </div>
-                        <div class="file-tree" id="fileTree"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-action" onclick="scanDatabaseProjects()">🔄 تحديث المشاريع</button>
+                <button class="btn-action" onclick="logout()" style="border-color: var(--danger); color: var(--danger);">🚪 خروج</button>
+            </div>
+        </div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="editor">✏️ محرر النشر</button>
+            <button class="tab-btn" data-tab="projects">📁 مشاريعي (<span id="projectCount">0</span>)</button>
+        </div>
+
+        <div id="editorTab" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-title">⚙️ معلومات المشروع</div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="projectName" placeholder="اسم المشروع (مثال: my-bot)" dir="ltr" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--code-bg); border:1px solid var(--border-dim); color:white;">
                     </div>
-                    <div class="editor-area">
-                        <div class="file-tabs" id="fileTabs"></div>
-                        <div class="code-editor-wrapper">
-                            <div class="code-header"><span id="currentFileLabel">index.js</span><span id="editModeBadge" style="color:var(--warning); margin-right:10px;"></span></div>
-                            <div class="editor-container">
-                                <div class="line-numbers" id="lineNumbers">1</div>
-                                <textarea id="codeInput" placeholder="// اكتب الكود هنا..."></textarea>
+                    <div class="card-title">💻 مستكشف الملفات</div>
+                    <div class="ide-container">
+                        <div class="file-sidebar">
+                            <div class="sidebar-header">
+                                <button onclick="createNewFile()">📄 ملف جديد</button>
+                                <button onclick="createNewFolder()">📁 مجلد جديد</button>
+                            </div>
+                            <div class="file-tree" id="fileTree"></div>
+                        </div>
+                        <div class="editor-area">
+                            <div class="file-tabs" id="fileTabs"></div>
+                            <div class="code-editor-wrapper">
+                                <div class="code-header"><span id="currentFileLabel">index.js</span><span id="editModeBadge" style="color:var(--warning); margin-right:10px;"></span></div>
+                                <div class="editor-container">
+                                    <div class="line-numbers" id="lineNumbers">1</div>
+                                    <textarea id="codeInput" placeholder="// اكتب الكود هنا..."></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-title">🔐 المتغيرات البيئية (Secrets)</div>
-                <div id="envVarsContainer" class="env-list"></div>
-                <button onclick="addEnvRow()" class="btn-action" style="width:100%; border-style:dashed;">+ إضافة متغير</button>
-                
-                <button id="deployBtn" class="deploy-btn" onclick="performDeploy()">🚀 حفظ ونشر المشروع</button>
-                <button id="cancelEditBtn" class="btn-action" onclick="cancelEditMode()" style="display:none; width:100%; margin-top:10px; border-color:var(--danger); color:var(--danger);">✖ إلغاء التعديل</button>
-                
-                <div class="terminal-section">
-                    <div class="card-title" style="margin-top:20px;">📟 سجل الخادم</div>
-                    <div id="terminalLogs" class="terminal"><div class="log-line">⏳ جاهز للعمل...</div></div>
-                    <div id="deployResult" style="margin-top: 12px; font-family:monospace; word-break:break-all;"></div>
+                <div class="card">
+                    <div class="card-title">🔐 المتغيرات البيئية (Secrets)</div>
+                    <div id="envVarsContainer" class="env-list"></div>
+                    <button onclick="addEnvRow()" class="btn-action" style="width:100%; border-style:dashed;">+ إضافة متغير</button>
+                    
+                    <button id="deployBtn" class="deploy-btn" onclick="performDeploy()">🚀 حفظ ونشر المشروع</button>
+                    <button id="cancelEditBtn" class="btn-action" onclick="cancelEditMode()" style="display:none; width:100%; margin-top:10px; border-color:var(--danger); color:var(--danger);">✖ إلغاء التعديل</button>
+                    
+                    <div class="terminal-section">
+                        <div class="card-title" style="margin-top:20px;">📟 سجل الخادم</div>
+                        <div id="terminalLogs" class="terminal"><div class="log-line">⏳ جاهز للعمل...</div></div>
+                        <div id="deployResult" style="margin-top: 12px; font-family:monospace; word-break:break-all;"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="projectsTab" class="tab-content" style="display: none;">
-        <div class="card">
-            <div class="card-title">📁 مشاريعي في السحابة</div>
-            <div id="projectsGrid" class="projects-grid">
-                <div class="empty-state">✨ اضغط "تحميل المشاريع" لعرضها</div>
+        <div id="projectsTab" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-title">📁 مشاريعي في السحابة</div>
+                <div id="projectsGrid" class="projects-grid">
+                    <div class="empty-state">جاري جلب مشاريعك... 🚀</div>
+                </div>
             </div>
         </div>
     </div>
@@ -171,13 +218,61 @@
     // ==================== STATE ====================
     let projectsCache = [];
     let currentEditProject = null;
-    let currentFiles = {};      // { "index.js": "content", "src/utils.js": "content" }
-    let openTabs = [];          // ["index.js", "src/utils.js"]
+    let currentFiles = {};      
+    let openTabs = [];          
     let activeTab = "index.js";
-    let currentUserId = "";
+    let currentUserId = null; 
     
     const API_URL = "https://najm-backend.60jrhwm.workers.dev";
     
+    // ==================== GOOGLE AUTH SYSTEM ====================
+    
+    function decodeJwtResponse(token) {
+        let base64Url = token.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    function handleGoogleLogin(response) {
+        try {
+            const responsePayload = decodeJwtResponse(response.credential);
+            const googleUserId = responsePayload.sub; 
+            const userName = responsePayload.name;
+
+            localStorage.setItem('najm_uid', googleUserId);
+            localStorage.setItem('najm_uname', userName);
+
+            activateUserSession(googleUserId, userName);
+        } catch (e) {
+            console.error("Login Error:", e);
+        }
+    }
+
+    function activateUserSession(uid, uname) {
+        currentUserId = uid;
+        
+        // إخفاء شاشة الدخول وإظهار مساحة العمل
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainWorkspace').style.display = 'block';
+        
+        // تحديث اسم المستخدم
+        document.getElementById('userNameDisplay').innerText = `أهلاً، ${escapeHtml(uname)}`;
+        
+        log(`✅ تم تسجيل الدخول بنجاح كـ: ${uname}`);
+        
+        // سحب المشاريع تلقائياً
+        scanDatabaseProjects();
+    }
+
+    function logout() {
+        localStorage.removeItem('najm_uid');
+        localStorage.removeItem('najm_uname');
+        location.reload(); 
+    }
+
     // ==================== HELPERS ====================
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
     
@@ -353,7 +448,7 @@
         } else if(typeof codeObj === 'object' && codeObj !== null) {
             currentFiles = codeObj;
         } else {
-            currentFiles = { "index.js": "// نجم كلاود v17.0\nconsole.log('Hello Najm Cloud');" };
+            currentFiles = { "index.js": "// نجم كلاود v18.5\nconsole.log('Hello Najm Cloud');" };
         }
         
         if(!currentFiles["index.js"]) currentFiles["index.js"] = "// الملف الرئيسي\nconsole.log('Najm Cloud Active');";
@@ -371,33 +466,27 @@
     }
     
     // ==================== USER FUNCTIONS ====================
-    function saveUserId() {
-        const id = document.getElementById('userIdInput').value.trim();
-        if(id) { localStorage.setItem('najm_uid', id); currentUserId = id; log("✅ تم حفظ المعرف!"); }
-    }
     
     async function scanDatabaseProjects() {
-        const uid = document.getElementById('userIdInput').value.trim();
-        if(!uid) return alert("الرجاء حفظ المعرف أولاً");
-        currentUserId = uid;
+        if(!currentUserId) return;
         showProgress(true);
-        log(`🔍 جاري سحب المشاريع للمعرف: ${uid}...`);
+        log(`🔍 جاري سحب مشاريعك الخاصة...`);
         try {
-            const response = await fetch(`${API_URL}/get-projects?user_id=${encodeURIComponent(uid)}`);
+            const response = await fetch(`${API_URL}/get-projects?user_id=${encodeURIComponent(currentUserId)}`);
             const data = await response.json();
             if(data.success) {
                 projectsCache = data.projects;
                 renderProjects();
-                log(`✅ تم تحميل ${projectsCache.length} مشروع`);
-                document.querySelector('[data-tab="projects"]').click();
+                document.getElementById('projectCount').innerText = projectsCache.length;
+                log(`✅ تم تحميل ${projectsCache.length} مشروع خاص بك`);
             } else throw new Error(data.error);
-        } catch(e) { log(`❌ فشل: ${e.message}`, true); }
+        } catch(e) { log(`❌ فشل تحميل المشاريع: ${e.message}`, true); }
         showProgress(false);
     }
     
     function renderProjects() {
         const grid = document.getElementById('projectsGrid');
-        if(!projectsCache.length) { grid.innerHTML = '<div class="empty-state">لا توجد مشاريع مسجلة</div>'; return; }
+        if(!projectsCache.length) { grid.innerHTML = '<div class="empty-state">ليس لديك أي مشاريع سحابية حتى الآن 🚀<br><br><small style="color:var(--text-muted)">قم بكتابة كود جديد واضغط على "حفظ ونشر"</small></div>'; return; }
         grid.innerHTML = projectsCache.map(p => `
             <div class="project-card">
                 <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
@@ -439,7 +528,7 @@
     function cancelEditMode() {
         currentEditProject = null;
         document.getElementById('projectName').value = '';
-        loadFilesFromCodeObject({ "index.js": "// نجم كلاود v17.0\nconsole.log('Hello Najm Cloud');" });
+        loadFilesFromCodeObject({ "index.js": "// نجم كلاود v18.5\nconsole.log('Hello Najm Cloud');" });
         document.getElementById('envVarsContainer').innerHTML = '';
         addEnvRow('BOT_TOKEN', '');
         document.getElementById('deployBtn').innerHTML = '🚀 حفظ ونشر المشروع';
@@ -450,36 +539,42 @@
     }
     
     async function performDeploy() {
-        const uid = document.getElementById('userIdInput').value.trim();
+        if(!currentUserId) return alert("حدث خطأ في الجلسة، يرجى تسجيل الدخول مجدداً");
+        
         const pid = document.getElementById('projectName').value.trim();
         saveCurrentFileContent();
         const codeString = getFilesAsCodeString();
-        if(!uid || !pid) return alert("أكمل البيانات المطلوبة!");
+        
+        if(!pid) return alert("أكمل اسم المشروع المطلوب!");
+        
         const vars = {};
         document.querySelectorAll('.env-item').forEach(item => {
             const k = item.querySelector('.env-key').value.trim();
             const v = item.querySelector('.env-value').value;
             if(k) vars[k] = v;
         });
+        
         showProgress(true);
         document.getElementById('deployBtn').disabled = true;
-        log(`🚀 جاري الإرسال لقاعدة البيانات...`);
+        log(`🚀 جاري الإرسال والمصادقة لحسابك...`);
+        
         try {
             const response = await fetch(`${API_URL}/deploy`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ user_id: uid, project_name: pid, code: codeString, environment_variables: vars })
+                body: JSON.stringify({ user_id: currentUserId, project_name: pid, code: codeString, environment_variables: vars })
             });
             const result = await response.json();
             if(response.ok && result.success) {
                 log('✅ تم الحفظ والنشر بنجاح!', false, true);
-                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(uid)}/${encodeURIComponent(pid)}`;
+                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(currentUserId)}/${encodeURIComponent(pid)}`;
                 document.getElementById('deployResult').innerHTML = `<div style="padding:10px; background:rgba(0,255,153,0.1); border:1px solid var(--success); border-radius:10px;">الرابط:<br><a href="${finalUrl}" target="_blank" style="color:var(--success);">${finalUrl}</a></div>`;
                 const existing = projectsCache.findIndex(x => x.name === pid);
                 const projObj = { name: pid, code: codeString, envVars: vars, url: finalUrl };
                 if(existing !== -1) projectsCache[existing] = projObj;
                 else projectsCache.unshift(projObj);
                 renderProjects();
+                document.getElementById('projectCount').innerText = projectsCache.length;
                 if(currentEditProject) cancelEditMode();
             } else throw new Error(result.error || "خطأ");
         } catch(e) { log(`❌ فشل: ${e.message}`, true); }
@@ -496,18 +591,25 @@
     
     // ==================== INIT ====================
     window.onload = () => {
-        if(localStorage.getItem('najm_uid')) {
-            document.getElementById('userIdInput').value = localStorage.getItem('najm_uid');
-            currentUserId = localStorage.getItem('najm_uid');
+        const savedUid = localStorage.getItem('najm_uid');
+        const savedUname = localStorage.getItem('najm_uname');
+        
+        // إذا كان المستخدم مسجل دخوله من قبل، افتح له اللوحة مباشرة
+        if(savedUid && savedUname) {
+            activateUserSession(savedUid, savedUname);
+        } else {
+            // غير كذا، خله على شاشة تسجيل الدخول
+            document.getElementById('loginScreen').style.display = 'flex';
         }
+        
         addEnvRow('BOT_TOKEN', '');
-        loadFilesFromCodeObject({ "index.js": `// نجم كلاود IDE v17.0
-console.log("Najm Cloud Active");
+        loadFilesFromCodeObject({ "index.js": `// نجم كلاود IDE v18.5
+console.log("Najm Cloud Enterprise Active");
 
 async function handler(request) {
     return new Response(JSON.stringify({
-        message: "مرحباً من نجم كلاود!",
-        version: "17.0",
+        message: "مرحباً من مساحتك السحابية!",
+        version: "18.5",
         status: "active"
     }), {
         headers: { "Content-Type": "application/json" }
