@@ -4,353 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
+    <!-- Google Verification -->
     <meta name="google-site-verification" content="eALzTwFi8xlp8EmzomHnNRywXSp8odHdPheJGt6OIJg" />
+    
+    <!-- SEO Meta Tags -->
     <meta name="description" content="نجم كلاود | منصة تطوير سحابية متكاملة IDE مع دعم متعدد الملفات، تخزين سحابي، ونظام مصادقة Google. أنشئ مشاريعك البرمجية بسهولة وأمان." />
-    <meta name="keywords" content="نجم كلاود, Najm Cloud, منصة سحابية, IDE, برمجة سحابية, تطوير ويب, استضافة سحابية, Serverless, Cloud IDE" />
+    <meta name="keywords" content="نجم كلاود, Najm Cloud, منصة سحابية, IDE, برمجة سحابية, تطوير ويب, استضافة سحابية, Serverless, Cloud IDE, منصة تطوير" />
     <meta name="author" content="Najm Cloud Team" />
     <meta name="robots" content="index, follow" />
+    <meta name="language" content="Arabic" />
     
-    <!-- Prism.js for Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-html.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://najm-cloud.vercel.app/" />
+    <meta property="og:title" content="نجم كلاود | IDE Edition v18.5 - منصة التطوير السحابية" />
+    <meta property="og:description" content="منصة تطوير سحابية متكاملة مع محرر أكواد احترافي، دعم متعدد الملفات، ونظام مصادقة Google. أنشئ مشاريعك البرمجية بسهولة." />
+    <meta property="og:image" content="https://najm-cloud.vercel.app/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://najm-cloud.vercel.app/" />
+    <meta property="twitter:title" content="نجم كلاود | IDE Edition v18.5" />
+    <meta property="twitter:description" content="منصة تطوير سحابية متكاملة مع محرر أكواد احترافي، دعم متعدد الملفات، ونظام مصادقة Google." />
+    <meta property="twitter:image" content="https://najm-cloud.vercel.app/og-image.png" />
+    
+    <!-- Additional SEO -->
+    <meta name="apple-mobile-web-app-title" content="نجم كلاود" />
+    <meta name="application-name" content="Najm Cloud IDE" />
+    <link rel="canonical" href="https://najm-cloud.vercel.app/" />
+    
+    <title>نجم كلاود | IDE Edition v18.5 - منصة التطوير السحابية الاحترافية</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-deep: #0a0c15;
-            --card-bg: rgba(22, 27, 51, 0.7);
-            --primary: #00d2ff;
-            --primary-glow: rgba(0, 210, 255, 0.3);
-            --success: #00ff99;
-            --danger: #ff3366;
-            --warning: #ffaa00;
-            --update: #aa66ff;
-            --text-light: #eef5ff;
-            --text-muted: #8e9aaf;
-            --border-dim: rgba(42, 47, 75, 0.5);
-            --code-bg: rgba(10, 12, 24, 0.9);
-            --terminal-bg: rgba(5, 7, 15, 0.95);
-            --gradient-btn: linear-gradient(135deg, #00d2ff, #3a0ca3);
-            --glass-blur: blur(12px);
+            --bg-deep: #0f1020; --card-bg: #161b33; --primary: #00d2ff;
+            --primary-glow: rgba(0, 210, 255, 0.3); --success: #00ff99;
+            --danger: #ff3366; --warning: #ffaa00; --update: #aa66ff;
+            --text-light: #eef5ff; --text-muted: #8e9aaf; --border-dim: #2a2f4b;
+            --code-bg: #0a0c18; --terminal-bg: #05070f;
+            --gradient-btn: linear-gradient(95deg, #00d2ff, #3a0ca3);
         }
 
-        body { 
-            background: linear-gradient(135deg, #0a0c15 0%, #1a1f3a 100%);
-            font-family: 'Tajawal', 'Fira Code', monospace; 
-            color: var(--text-light); 
-            line-height: 1.5; 
-            padding: 2rem 1.5rem; 
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(0, 210, 255, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .progress-bar-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            height: 3px; 
-            background: rgba(0, 210, 255, 0.2); 
-            z-index: 10000; 
-            opacity: 0; 
-            transition: opacity 0.3s; 
-        }
-        .progress-bar { 
-            height: 100%; 
-            background: linear-gradient(90deg, var(--primary), var(--success)); 
-            width: 0%; 
-            transition: width 0.3s ease-out; 
-            box-shadow: 0 0 10px var(--primary); 
-        }
+        body { background: var(--bg-deep); font-family: 'Tajawal', monospace; color: var(--text-light); line-height: 1.5; padding: 2rem 1.5rem; min-height: 100vh; }
+        .progress-bar-container { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: rgba(0, 210, 255, 0.2); z-index: 10000; opacity: 0; transition: opacity 0.3s; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); width: 0%; transition: width 0.3s ease-out; box-shadow: 0 0 10px var(--primary); }
         .progress-bar-container.active { opacity: 1; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-deep); } ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 8px; }
         
-        ::-webkit-scrollbar { width: 8px; height: 8px; } 
-        ::-webkit-scrollbar-track { background: var(--bg-deep); } 
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 8px; }
+        .dashboard-container { max-width: 1600px; margin: 0 auto; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 2px solid var(--primary); padding-bottom: 1rem; }
+        .logo-area { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .badge-version { background: var(--card-bg); padding: 0.3rem 0.8rem; border-radius: 40px; font-size: 0.8rem; border: 1px solid var(--primary); color: var(--primary); }
         
-        .dashboard-container { 
-            max-width: 1600px; 
-            margin: 0 auto; 
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header { 
-            background: rgba(22, 27, 51, 0.6);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 20px;
-            padding: 1rem 2rem;
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            margin-bottom: 2rem; 
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        .logo-area { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .badge-version { background: rgba(0, 210, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 40px; font-size: 0.8rem; border: 1px solid var(--primary); color: var(--primary); backdrop-filter: blur(4px); }
-        
+        /* شاشة تسجيل الدخول الجديدة */
         .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; }
-        .login-box { 
-            background: rgba(22, 27, 51, 0.8);
-            backdrop-filter: var(--glass-blur);
-            padding: 3rem; 
-            border-radius: 32px; 
-            text-align: center; 
-            border: 1px solid rgba(0, 210, 255, 0.3); 
-            box-shadow: 0 0 60px rgba(0, 210, 255, 0.2);
-            max-width: 500px; 
-            width: 100%; 
-        }
-        .login-box h2 { font-size: 2rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--primary), var(--success)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .login-box { background: linear-gradient(135deg, var(--card-bg) 0%, #0f1225 100%); padding: 4rem 3rem; border-radius: 24px; text-align: center; border: 1px solid var(--primary); box-shadow: 0 0 40px rgba(0,210,255,0.15); max-width: 500px; width: 100%; }
+        .login-box h2 { font-size: 2rem; margin-bottom: 10px; color: var(--text-light); }
         .login-box p { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem; }
+        .google-btn-wrapper { display: flex; justify-content: center; margin-top: 20px; }
+
+        /* كرت المستخدم (بعد الدخول) */
+        .user-profile-card { background: var(--card-bg); border-radius: 20px; padding: 1.2rem 1.8rem; margin-bottom: 2rem; border: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .btn-action { background: transparent; border: 1px solid var(--primary); border-radius: 60px; padding: 0.7rem 1.5rem; color: var(--primary); font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-action:hover { background: var(--primary); color: var(--bg-deep); }
         
-        .user-profile-card { 
-            background: rgba(22, 27, 51, 0.7);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 20px; 
-            padding: 1.2rem 1.8rem; 
-            margin-bottom: 2rem; 
-            border: 1px solid rgba(0, 210, 255, 0.2); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            gap: 1rem; 
-        }
-        .btn-action { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid var(--primary); 
-            border-radius: 60px; 
-            padding: 0.7rem 1.5rem; 
-            color: var(--primary); 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            backdrop-filter: blur(4px);
-        }
-        .btn-action:hover { background: var(--primary); color: var(--bg-deep); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3); }
-        
-        .tabs-nav { 
-            display: flex; 
-            gap: 1rem; 
-            margin-bottom: 2rem; 
-            background: rgba(22, 27, 51, 0.5);
-            backdrop-filter: var(--glass-blur);
-            padding: 0.5rem;
-            border-radius: 60px;
-            width: fit-content;
-        }
-        .tab-btn { 
-            background: transparent; 
-            border: none; 
-            padding: 0.8rem 1.8rem; 
-            color: var(--text-muted); 
-            font-size: 1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border-radius: 40px; 
-            transition: all 0.3s ease; 
-        }
-        .tab-btn.active { 
-            color: var(--primary); 
-            background: rgba(0, 210, 255, 0.2); 
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
-        }
-        
+        .tabs-nav { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-dim); padding-bottom: 0.5rem; }
+        .tab-btn { background: transparent; border: none; padding: 0.8rem 1.5rem; color: var(--text-muted); font-size: 1rem; font-weight: bold; cursor: pointer; border-radius: 12px; transition: 0.3s; }
+        .tab-btn.active { color: var(--primary); background: rgba(0, 210, 255, 0.1); border-bottom: 2px solid var(--primary); }
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8rem; }
         @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
-        
-        .card { 
-            background: rgba(22, 27, 51, 0.6);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 28px; 
-            padding: 1.5rem; 
-            border: 1px solid rgba(0, 210, 255, 0.2); 
-            transition: transform 0.3s ease;
-        }
-        .card:hover { transform: translateY(-4px); border-color: rgba(0, 210, 255, 0.5); }
+        .card { background: var(--card-bg); border-radius: 28px; padding: 1.5rem; border: 1px solid rgba(0, 210, 255, 0.2); }
         .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.4rem; border-right: 4px solid var(--primary); padding-right: 12px; }
         
-        .ide-container { display: flex; gap: 1rem; margin-bottom: 1rem; min-height: 500px; }
-        .file-sidebar { 
-            width: 280px; 
-            background: rgba(10, 12, 24, 0.8);
-            backdrop-filter: blur(4px);
-            border-radius: 20px; 
-            border: 1px solid var(--border-dim); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        /* IDE Sidebar + Editor */
+        .ide-container { display: flex; gap: 1rem; margin-bottom: 1rem; min-height: 450px; }
+        .file-sidebar { width: 260px; background: var(--code-bg); border-radius: 20px; border: 1px solid var(--border-dim); display: flex; flex-direction: column; overflow: hidden; }
         .sidebar-header { padding: 12px; border-bottom: 1px solid var(--border-dim); display: flex; gap: 8px; flex-wrap: wrap; }
-        .sidebar-header button { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid var(--border-dim); 
-            border-radius: 20px; 
-            padding: 6px 12px; 
-            font-size: 0.75rem; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            transition: all 0.2s; 
-        }
-        .sidebar-header button:hover { border-color: var(--primary); color: var(--primary); background: rgba(0, 210, 255, 0.1); }
-        
+        .sidebar-header button { background: transparent; border: 1px solid var(--border-dim); border-radius: 20px; padding: 4px 8px; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .sidebar-header button:hover { border-color: var(--primary); color: var(--primary); }
         .file-tree { flex: 1; overflow-y: auto; padding: 12px; }
-        .file-item, .folder-header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 8px 12px; 
-            margin: 2px 0; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 0.85rem; 
-            transition: all 0.2s; 
-        }
-        .file-item:hover, .folder-header:hover { background: rgba(0, 210, 255, 0.15); transform: translateX(-4px); }
-        .file-item.active { background: rgba(0, 210, 255, 0.25); border-left: 3px solid var(--primary); }
+        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; margin: 2px 0; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: monospace; transition: 0.2s; }
+        .file-item:hover { background: rgba(0, 210, 255, 0.1); }
+        .file-item.active { background: rgba(0, 210, 255, 0.2); border-left: 2px solid var(--primary); }
         .file-name { display: flex; align-items: center; gap: 8px; flex: 1; }
         .file-actions { display: none; gap: 4px; }
         .file-item:hover .file-actions { display: flex; }
-        .file-actions button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.7rem; transition: color 0.2s; }
+        .file-actions button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.7rem; }
         .file-actions button:hover { color: var(--danger); }
-        .folder-children { padding-right: 24px; display: none; }
+        .folder-item { margin-bottom: 4px; }
+        .folder-header { display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; border-radius: 8px; }
+        .folder-header:hover { background: rgba(0, 210, 255, 0.1); }
+        .folder-children { padding-right: 20px; display: none; }
         .folder-children.open { display: block; }
         
         .editor-area { flex: 1; display: flex; flex-direction: column; }
-        .file-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-dim); padding-bottom: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .file-tab { 
-            background: rgba(10, 12, 24, 0.8); 
-            border: 1px solid var(--border-dim); 
-            border-radius: 20px; 
-            padding: 6px 14px; 
-            font-size: 0.8rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            cursor: pointer; 
-            transition: all 0.2s;
-        }
-        .file-tab:hover { background: rgba(0, 210, 255, 0.1); }
-        .file-tab.active { border-color: var(--primary); color: var(--primary); background: rgba(0, 210, 255, 0.15); }
-        .close-tab { color: var(--text-muted); font-size: 1rem; cursor: pointer; transition: color 0.2s; }
+        .file-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-dim); padding-bottom: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .file-tab { background: var(--code-bg); border: 1px solid var(--border-dim); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .file-tab.active { border-color: var(--primary); color: var(--primary); }
+        .file-tab span:first-child { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+        .close-tab { color: var(--text-muted); font-size: 1rem; cursor: pointer; }
         .close-tab:hover { color: var(--danger); }
+        .code-editor-wrapper { flex: 1; background: var(--code-bg); border-radius: 20px; border: 1px solid var(--border-dim); overflow: hidden; display: flex; flex-direction: column; }
+        .code-header { background: #0a0c1a; padding: 0.6rem 1rem; font-size: 0.75rem; border-bottom: 1px solid var(--border-dim); color: var(--primary); }
+        .editor-container { display: flex; flex: 1; direction: ltr; min-height: 350px; }
+        .line-numbers { background: #070915; padding: 1rem 0.75rem; text-align: right; color: var(--text-muted); border-left: 1px solid var(--border-dim); user-select: none; line-height: 1.5; min-width: 45px; font-family: monospace; font-size: 0.8rem; }
+        #codeInput { border: none; resize: none; flex: 1; background: transparent; padding: 1rem; direction: ltr; color: var(--text-light); outline: none; line-height: 1.5; font-family: monospace; font-size: 0.85rem; }
         
-        .code-editor-wrapper { 
-            flex: 1; 
-            background: var(--code-bg); 
-            border-radius: 20px; 
-            border: 1px solid var(--border-dim); 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .code-header { background: rgba(10, 12, 26, 0.9); padding: 0.8rem 1rem; font-size: 0.8rem; border-bottom: 1px solid var(--border-dim); color: var(--primary); font-family: monospace; }
-        
-        .editor-container { display: flex; flex: 1; min-height: 400px; }
-        .line-numbers { 
-            background: rgba(7, 9, 21, 0.9); 
-            padding: 1rem 0.75rem; 
-            text-align: right; 
-            color: var(--text-muted); 
-            border-left: 1px solid var(--border-dim); 
-            user-select: none; 
-            line-height: 1.6; 
-            min-width: 55px; 
-            font-family: 'Fira Code', monospace; 
-            font-size: 0.8rem; 
-            overflow-y: hidden;
-        }
-        
-        #codeInput { 
-            border: none; 
-            resize: none; 
-            flex: 1; 
-            background: transparent; 
-            padding: 1rem; 
-            color: var(--text-light); 
-            outline: none; 
-            line-height: 1.6; 
-            font-family: 'Fira Code', monospace; 
-            font-size: 0.85rem; 
-            tab-size: 4;
-        }
-        
-        .env-list { margin-bottom: 1rem; max-height: 250px; overflow-y: auto; }
-        .env-item { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; background: rgba(10, 12, 24, 0.6); padding: 0.6rem; border-radius: 16px; align-items: center; }
-        .env-key, .env-value { flex: 1; background: var(--code-bg); border: 1px solid var(--border-dim); border-radius: 12px; padding: 0.6rem; color: var(--text-light); font-family: monospace; }
-        
-        .deploy-btn { 
-            background: var(--gradient-btn); 
-            border: none; 
-            width: 100%; 
-            padding: 1rem; 
-            font-size: 1.2rem; 
-            font-weight: bold; 
-            border-radius: 60px; 
-            color: white; 
-            cursor: pointer; 
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
-        }
-        .deploy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4); }
-        .deploy-btn.update-mode { background: linear-gradient(135deg, #aa66ff, #6a1b9a); }
-        .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        
-        .terminal { 
-            background: var(--terminal-bg); 
-            border-radius: 16px; 
-            padding: 1rem; 
-            font-family: 'Fira Code', monospace; 
-            font-size: 0.75rem; 
-            border: 1px solid rgba(0, 210, 255, 0.3); 
-            max-height: 200px; 
-            overflow-y: auto; 
-            margin-top: 15px; 
-        }
-        .log-line { color: #b0ffd0; border-bottom: 1px dotted rgba(0, 210, 255, 0.2); padding: 6px 0; white-space: pre-wrap; font-family: monospace; }
-        
-        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-        .project-card { 
-            background: rgba(22, 27, 51, 0.7);
-            backdrop-filter: blur(4px);
-            border-radius: 20px; 
-            padding: 1.2rem; 
-            border: 1px solid var(--border-dim); 
-            transition: all 0.3s; 
-        }
-        .project-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0, 210, 255, 0.2); }
+        .env-list { margin-bottom: 1rem; max-height: 200px; overflow-y: auto; }
+        .env-item { display: flex; gap: 0.8rem; margin-bottom: 1rem; background: rgba(10,12,24,0.6); padding: 0.6rem; border-radius: 20px; align-items: center; }
+        .env-key, .env-value { flex: 1; background: var(--code-bg); border: 1px solid var(--border-dim); border-radius: 12px; padding: 0.5rem; color: var(--text-light); }
+        .deploy-btn { background: var(--gradient-btn); border: none; width: 100%; padding: 1rem; font-size: 1.3rem; font-weight: bold; border-radius: 60px; color: white; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        .deploy-btn.update-mode { background: linear-gradient(95deg, #aa66ff, #6a1b9a); }
+        .deploy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .terminal { background: var(--terminal-bg); border-radius: 20px; padding: 1rem; font-family: monospace; font-size: 0.8rem; border: 1px solid #2a2f4b; max-height: 180px; overflow-y: auto; margin-top: 15px; }
+        .log-line { color: #b0ffd0; border-bottom: 1px dotted rgba(0,210,255,0.2); padding: 5px 0; white-space: pre-wrap; }
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .project-card { background: var(--card-bg); border-radius: 20px; padding: 1.2rem; border: 1px solid var(--border-dim); transition: 0.3s; }
+        .project-card:hover { border-color: var(--primary); transform: translateY(-4px); }
         .project-name { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
-        .project-btn { 
-            flex: 1; 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid var(--border-dim); 
-            border-radius: 12px; 
-            padding: 0.5rem; 
-            color: var(--text-light); 
-            cursor: pointer; 
-            transition: all 0.2s; 
-        }
-        .project-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0, 210, 255, 0.1); }
+        .project-btn { flex: 1; background: transparent; border: 1px solid var(--border-dim); border-radius: 12px; padding: 0.5rem; color: var(--text-light); cursor: pointer; }
+        .project-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -359,15 +136,16 @@
 
 <div class="dashboard-container">
     <div class="header">
-        <div class="logo-area">⭐ نجم كلاود | IDE Pro</div>
-        <div class="badge-version">v19.0 · Cloud Native IDE</div>
+        <div class="logo-area">🚀 نجم كلاود | IDE</div>
+        <div class="badge-version">v18.5 · Enterprise Security</div>
     </div>
 
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
-            <div style="font-size: 4rem; margin-bottom: 15px;">⭐</div>
-            <h2>نجم كلاود IDE</h2>
-            <p>منصة التطوير السحابية الاحترافية مع دعم متعدد الملفات والمجلدات</p>
+            <div style="font-size: 4rem; margin-bottom: 15px;">☁️</div>
+            <h2>مرحباً بك في مساحتك السحابية</h2>
+            <p>منصة التطوير الاحترافية. يرجى تسجيل الدخول للوصول إلى بيئة العمل والمشاريع الخاصة بك.</p>
+            
             <div class="google-btn-wrapper">
                 <div id="g_id_onload"
                      data-client_id="782920953457-7ao8lda0g1lb8r4df27ir5s8db9lrjnb.apps.googleusercontent.com"
@@ -381,19 +159,21 @@
                      data-shape="pill"
                      data-theme="filled_black"
                      data-text="signin_with"
-                     data-size="large">
+                     data-size="large"
+                     data-logo_alignment="left">
                 </div>
             </div>
         </div>
     </div>
 
     <div id="mainWorkspace" style="display: none;">
+        
         <div class="user-profile-card">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div style="font-size: 2rem;">👨‍💻</div>
                 <div>
                     <div id="userNameDisplay" style="color: var(--primary); font-weight: bold; font-size: 1.2rem;"></div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);"><span style="color:var(--success);">●</span> متصل بالسحابة الآمنة</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);"><span style="color:var(--success);">●</span> متصل بالنظام السحابي الآمن</div>
                 </div>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -403,17 +183,18 @@
         </div>
 
         <div class="tabs-nav">
-            <button class="tab-btn active" data-tab="editor">✏️ محرر الأكواد</button>
+            <button class="tab-btn active" data-tab="editor">✏️ محرر النشر</button>
             <button class="tab-btn" data-tab="projects">📁 مشاريعي (<span id="projectCount">0</span>)</button>
         </div>
 
         <div id="editorTab" class="tab-content">
             <div class="dashboard-grid">
-                <div class="card">
+                <div class="card" style="display: flex; flex-direction: column;">
                     <div class="card-title">⚙️ معلومات المشروع</div>
-                    <input type="text" id="projectName" placeholder="اسم المشروع (مثال: my-awesome-app)" dir="ltr" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--code-bg); border:1px solid var(--border-dim); color:white; margin-bottom:1rem;">
-                    
-                    <div class="card-title">📂 مستكشف الملفات</div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="projectName" placeholder="اسم المشروع (مثال: my-bot)" dir="ltr" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--code-bg); border:1px solid var(--border-dim); color:white;">
+                    </div>
+                    <div class="card-title">💻 مستكشف الملفات</div>
                     <div class="ide-container">
                         <div class="file-sidebar">
                             <div class="sidebar-header">
@@ -425,13 +206,10 @@
                         <div class="editor-area">
                             <div class="file-tabs" id="fileTabs"></div>
                             <div class="code-editor-wrapper">
-                                <div class="code-header">
-                                    <span id="currentFileLabel">index.js</span>
-                                    <span id="editModeBadge" style="color:var(--warning); margin-right:10px;"></span>
-                                </div>
+                                <div class="code-header"><span id="currentFileLabel">index.js</span><span id="editModeBadge" style="color:var(--warning); margin-right:10px;"></span></div>
                                 <div class="editor-container">
                                     <div class="line-numbers" id="lineNumbers">1</div>
-                                    <textarea id="codeInput" placeholder="// اكتب كودك هنا..."></textarea>
+                                    <textarea id="codeInput" placeholder="// اكتب الكود هنا..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -439,17 +217,17 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-title">🔐 المتغيرات البيئية</div>
+                    <div class="card-title">🔐 المتغيرات البيئية (Secrets)</div>
                     <div id="envVarsContainer" class="env-list"></div>
-                    <button onclick="addEnvRow()" class="btn-action" style="width:100%; border-style:dashed; margin-bottom:1rem;">+ إضافة متغير</button>
+                    <button onclick="addEnvRow()" class="btn-action" style="width:100%; border-style:dashed;">+ إضافة متغير</button>
                     
                     <button id="deployBtn" class="deploy-btn" onclick="performDeploy()">🚀 حفظ ونشر المشروع</button>
                     <button id="cancelEditBtn" class="btn-action" onclick="cancelEditMode()" style="display:none; width:100%; margin-top:10px; border-color:var(--danger); color:var(--danger);">✖ إلغاء التعديل</button>
                     
                     <div class="terminal-section">
                         <div class="card-title" style="margin-top:20px;">📟 سجل الخادم</div>
-                        <div id="terminalLogs" class="terminal"><div class="log-line">✅ النظام جاهز للعمل | نجم كلاود IDE v19.0</div></div>
-                        <div id="deployResult" style="margin-top: 12px;"></div>
+                        <div id="terminalLogs" class="terminal"><div class="log-line">⏳ جاهز للعمل...</div></div>
+                        <div id="deployResult" style="margin-top: 12px; font-family:monospace; word-break:break-all;"></div>
                     </div>
                 </div>
             </div>
@@ -457,9 +235,9 @@
 
         <div id="projectsTab" class="tab-content" style="display: none;">
             <div class="card">
-                <div class="card-title">📁 مشاريعي السحابية</div>
+                <div class="card-title">📁 مشاريعي في السحابة</div>
                 <div id="projectsGrid" class="projects-grid">
-                    <div class="empty-state">🚀 جاري تحميل المشاريع...</div>
+                    <div class="empty-state">جاري جلب مشاريعك... 🚀</div>
                 </div>
             </div>
         </div>
@@ -467,49 +245,62 @@
 </div>
 
 <script>
-    // ==================== STATE MANAGEMENT ====================
+    // ==================== STATE ====================
     let projectsCache = [];
     let currentEditProject = null;
-    let currentFiles = {};      // VFS: path -> content
-    let openTabs = [];
-    let activeTab = null;
-    let currentUserId = null;
+    let currentFiles = {};      
+    let openTabs = [];          
+    let activeTab = "index.js";
+    let currentUserId = null; 
     
     const API_URL = "https://najm-backend.60jrhwm.workers.dev";
     
-    // ==================== GOOGLE AUTH ====================
+    // ==================== GOOGLE AUTH SYSTEM ====================
+    
     function decodeJwtResponse(token) {
         let base64Url = token.split('.')[1];
         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        let jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
         return JSON.parse(jsonPayload);
     }
 
     function handleGoogleLogin(response) {
         try {
             const responsePayload = decodeJwtResponse(response.credential);
-            const googleUserId = responsePayload.sub;
+            const googleUserId = responsePayload.sub; 
             const userName = responsePayload.name;
+
             localStorage.setItem('najm_uid', googleUserId);
             localStorage.setItem('najm_uname', userName);
+
             activateUserSession(googleUserId, userName);
-        } catch (e) { console.error("Login Error:", e); log("❌ فشل تسجيل الدخول", true); }
+        } catch (e) {
+            console.error("Login Error:", e);
+        }
     }
 
     function activateUserSession(uid, uname) {
         currentUserId = uid;
+        
+        // إخفاء شاشة الدخول وإظهار مساحة العمل
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainWorkspace').style.display = 'block';
+        
+        // تحديث اسم المستخدم
         document.getElementById('userNameDisplay').innerText = `أهلاً، ${escapeHtml(uname)}`;
-        log(`✅ تم تسجيل الدخول بنجاح | المستخدم: ${uname}`, false, true);
+        
+        log(`✅ تم تسجيل الدخول بنجاح كـ: ${uname}`);
+        
+        // سحب المشاريع تلقائياً
         scanDatabaseProjects();
-        initializeDefaultFiles();
     }
 
     function logout() {
         localStorage.removeItem('najm_uid');
         localStorage.removeItem('najm_uname');
-        location.reload();
+        location.reload(); 
     }
 
     // ==================== HELPERS ====================
@@ -518,25 +309,14 @@
     function log(msg, isErr=false, isSuc=false) {
         const t = document.getElementById('terminalLogs');
         let color = '#b0ffd0';
-        if(isErr) color = '#ff6677';
+        if(isErr) color = '#ff3366';
         if(isSuc) color = '#00ff99';
-        t.innerHTML += `<div class="log-line" style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        t.innerHTML += `<div class="log-line" style="color:${color}">> ${msg}</div>`;
         t.scrollTop = t.scrollHeight;
         if(t.children.length > 100) t.removeChild(t.children[0]);
     }
     
-    function showProgress(show) { 
-        const container = document.getElementById('progressContainer');
-        const bar = document.getElementById('progressBar');
-        container.classList.toggle('active', show);
-        if(show) {
-            let width = 0;
-            const interval = setInterval(() => {
-                if(width >= 90 || !show) clearInterval(interval);
-                else { width += 10; bar.style.width = width + '%'; }
-            }, 100);
-        } else bar.style.width = '0%';
-    }
+    function showProgress(s) { document.getElementById('progressContainer').classList.toggle('active', s); }
     
     function updateLineNumbers() {
         const text = document.getElementById('codeInput').value;
@@ -544,51 +324,17 @@
         document.getElementById('lineNumbers').innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
     }
     
-    // ==================== SYNTAX HIGHLIGHTING ====================
-    function applySyntaxHighlighting() {
-        const code = document.getElementById('codeInput').value;
-        const language = detectLanguage(activeTab || 'index.js');
-        const highlighted = Prism.highlight(code, Prism.languages[language], language);
-        // Note: We keep textarea for editing, highlighting is visual only
-    }
+    document.getElementById('codeInput').addEventListener('input', updateLineNumbers);
+    document.getElementById('codeInput').addEventListener('scroll', function() { document.getElementById('lineNumbers').scrollTop = this.scrollTop; });
     
-    function detectLanguage(filename) {
-        if(filename.endsWith('.js')) return 'javascript';
-        if(filename.endsWith('.css')) return 'css';
-        if(filename.endsWith('.html')) return 'html';
-        if(filename.endsWith('.json')) return 'json';
-        return 'javascript';
-    }
-    
-    document.getElementById('codeInput').addEventListener('input', () => {
-        updateLineNumbers();
-        saveCurrentFileContent();
-    });
-    document.getElementById('codeInput').addEventListener('scroll', function() { 
-        document.getElementById('lineNumbers').scrollTop = this.scrollTop; 
-    });
-    
-    // ==================== VFS & FILE SYSTEM ====================
-    function initializeDefaultFiles() {
-        currentFiles = {
-            'index.js': '// نجم كلاود IDE v19.0\nconsole.log("Welcome to Najm Cloud!");\n\nasync function handler(request) {\n    return new Response(JSON.stringify({\n        message: "مرحباً من منصة نجم كلاود!",\n        version: "19.0",\n        status: "active"\n    }), {\n        headers: { "Content-Type": "application/json" }\n    });\n}',
-            'style.css': '/* أنماط CSS */\nbody {\n    font-family: system-ui;\n    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n    color: white;\n}',
-            'README.md': '# نجم كلاود IDE\n\nمنصة تطوير سحابية احترافية\n\n## المميزات\n- دعم متعدد الملفات\n- مجلدات متداخلة\n- تلوين الكود\n- نشر فوري'
-        };
-        openTabs = ['index.js', 'style.css'];
-        activeTab = 'index.js';
-        renderFileTree();
-        renderTabs();
-        if(activeTab && currentFiles[activeTab]) document.getElementById('codeInput').value = currentFiles[activeTab];
-        updateLineNumbers();
-        log("📁 تم تهيئة نظام الملفات الافتراضي", false, true);
-    }
-    
-    function buildFileTreeStructure() {
-        const tree = {};
+    // ==================== FILE SYSTEM UI ====================
+    function renderFileTree() {
+        const treeContainer = document.getElementById('fileTree');
+        const structure = {};
+        
         Object.keys(currentFiles).forEach(path => {
             const parts = path.split('/');
-            let current = tree;
+            let current = structure;
             for(let i = 0; i < parts.length; i++) {
                 const part = parts[i];
                 if(i === parts.length - 1) {
@@ -599,40 +345,33 @@
                 }
             }
         });
-        return tree;
-    }
-    
-    function renderFileTree() {
-        const treeContainer = document.getElementById('fileTree');
-        const structure = buildFileTreeStructure();
         
-        function buildTreeHTML(obj, level = 0) {
+        function buildTree(obj, level=0) {
             let html = '';
             const sorted = Object.keys(obj).sort();
             for(const key of sorted) {
                 const item = obj[key];
                 if(item.type === 'folder') {
-                    const folderId = `folder_${Date.now()}_${Math.random()}`;
                     html += `<div class="folder-item">
                         <div class="folder-header" onclick="toggleFolder(this)">
                             <span>📁 ${escapeHtml(item.name)}</span>
                             <span style="margin-right:auto; font-size:0.7rem;">▼</span>
                         </div>
-                        <div class="folder-children">${buildTreeHTML(item.children, level + 1)}</div>
+                        <div class="folder-children">${buildTree(item.children, level+1)}</div>
                     </div>`;
                 } else {
                     const isActive = (activeTab === item.path);
                     html += `<div class="file-item ${isActive ? 'active' : ''}" onclick="openFile('${item.path}')">
                         <div class="file-name">📄 ${escapeHtml(item.name)}</div>
                         <div class="file-actions">
-                            <button onclick="event.stopPropagation(); deleteFile('${item.path}')" title="حذف">🗑️</button>
+                            <button onclick="event.stopPropagation(); deleteFile('${item.path}')">🗑️</button>
                         </div>
                     </div>`;
                 }
             }
             return html;
         }
-        treeContainer.innerHTML = buildTreeHTML(structure);
+        treeContainer.innerHTML = buildTree(structure);
     }
     
     window.toggleFolder = function(el) {
@@ -644,35 +383,30 @@
     
     function renderTabs() {
         const tabsContainer = document.getElementById('fileTabs');
-        if(openTabs.length === 0) {
-            tabsContainer.innerHTML = '<div style="color:var(--text-muted); padding:8px;">لا توجد ملفات مفتوحة</div>';
-            document.getElementById('codeInput').value = '';
-            document.getElementById('currentFileLabel').innerText = 'لا يوجد ملف مفتوح';
-            return;
-        }
         tabsContainer.innerHTML = openTabs.map(path => `
             <div class="file-tab ${activeTab === path ? 'active' : ''}" onclick="openFile('${path}')">
                 <span>${escapeHtml(path.split('/').pop())}</span>
                 <span class="close-tab" onclick="event.stopPropagation(); closeTab('${path}')">✕</span>
             </div>
         `).join('');
-        if(activeTab && currentFiles[activeTab]) {
+        if(openTabs.length === 0) {
+            document.getElementById('codeInput').value = '';
+            document.getElementById('currentFileLabel').innerText = 'لا يوجد ملف مفتوح';
+        } else {
             document.getElementById('currentFileLabel').innerText = activeTab;
-            document.getElementById('codeInput').value = currentFiles[activeTab];
+            document.getElementById('codeInput').value = currentFiles[activeTab] || '';
             updateLineNumbers();
         }
     }
     
     window.openFile = function(path) {
         if(!currentFiles[path]) return;
-        saveCurrentFileContent();
         if(!openTabs.includes(path)) openTabs.push(path);
         activeTab = path;
         document.getElementById('codeInput').value = currentFiles[path] || '';
         updateLineNumbers();
         renderFileTree();
         renderTabs();
-        log(`📂 فتح الملف: ${path}`);
     };
     
     window.closeTab = function(path) {
@@ -687,45 +421,33 @@
         updateLineNumbers();
     };
     
-    function saveCurrentFileContent() {
-        if(activeTab && currentFiles[activeTab] !== undefined) {
-            currentFiles[activeTab] = document.getElementById('codeInput').value;
-        }
-    }
-    
     function createNewFile() {
-        let fileName = prompt("اسم الملف (يدعم المسارات مثل: src/app.js):", "newFile.js");
+        let fileName = prompt("اسم الملف (مثال: app.js أو src/index.js):", "newFile.js");
         if(!fileName) return;
         if(fileName.startsWith('/')) fileName = fileName.slice(1);
-        if(currentFiles[fileName]) {
-            log(`⚠️ الملف ${fileName} موجود بالفعل`, true);
-            return;
-        }
-        currentFiles[fileName] = `// ملف جديد: ${fileName}\nconsole.log('Hello from ${fileName}');`;
+        if(currentFiles[fileName]) return log(`⚠️ الملف ${fileName} موجود مسبقاً`, true);
+        currentFiles[fileName] = "// ملف جديد\nconsole.log('Hello Najm Cloud');";
         openTabs.push(fileName);
         activeTab = fileName;
         renderFileTree();
         renderTabs();
         document.getElementById('codeInput').value = currentFiles[fileName];
         updateLineNumbers();
-        log(`📄 تم إنشاء ملف: ${fileName}`, false, true);
+        log(`📄 تم إنشاء ملف: ${fileName}`);
     }
     
     function createNewFolder() {
         let folderName = prompt("اسم المجلد (مثال: src أو utils):", "newFolder");
         if(!folderName) return;
         if(folderName.startsWith('/')) folderName = folderName.slice(1);
-        if(currentFiles[`${folderName}/.gitkeep`]) {
-            log(`⚠️ المجلد ${folderName} موجود`, true);
-            return;
-        }
-        currentFiles[`${folderName}/.gitkeep`] = "# هذا ملف للحفاظ على المجلد";
+        if(currentFiles[`${folderName}/.keep`]) return log(`⚠️ المجلد ${folderName} موجود`, true);
+        currentFiles[`${folderName}/.keep`] = "// هذا ملف للحفاظ على المجلد";
         renderFileTree();
-        log(`📁 تم إنشاء مجلد: ${folderName}`, false, true);
+        log(`📁 تم إنشاء مجلد: ${folderName}`);
     }
     
     window.deleteFile = function(path) {
-        if(!confirm(`⚠️ هل أنت متأكد من حذف "${path}" نهائياً؟`)) return;
+        if(!confirm(`حذف ${path} نهائياً؟`)) return;
         delete currentFiles[path];
         const tabIdx = openTabs.indexOf(path);
         if(tabIdx !== -1) openTabs.splice(tabIdx, 1);
@@ -738,23 +460,55 @@
         log(`🗑️ تم حذف: ${path}`);
     };
     
+    function saveCurrentFileContent() {
+        if(activeTab && currentFiles[activeTab] !== undefined) {
+            currentFiles[activeTab] = document.getElementById('codeInput').value;
+        }
+    }
+    
+    function loadFilesFromCodeObject(codeObj) {
+        if(typeof codeObj === 'string') {
+            try {
+                const parsed = JSON.parse(codeObj);
+                if(parsed && typeof parsed === 'object') currentFiles = parsed;
+                else currentFiles = { "index.js": codeObj };
+            } catch(e) {
+                currentFiles = { "index.js": codeObj };
+            }
+        } else if(typeof codeObj === 'object' && codeObj !== null) {
+            currentFiles = codeObj;
+        } else {
+            currentFiles = { "index.js": "// نجم كلاود v18.5\nconsole.log('Hello Najm Cloud');" };
+        }
+        
+        if(!currentFiles["index.js"]) currentFiles["index.js"] = "// الملف الرئيسي\nconsole.log('Najm Cloud Active');";
+        
+        openTabs = Object.keys(currentFiles).slice(0, 3);
+        activeTab = openTabs[0] || "index.js";
+        renderFileTree();
+        renderTabs();
+        if(activeTab && currentFiles[activeTab]) document.getElementById('codeInput').value = currentFiles[activeTab];
+        updateLineNumbers();
+    }
+    
     function getFilesAsCodeString() {
         return JSON.stringify(currentFiles);
     }
     
-    // ==================== DEPLOYMENT & BACKEND ====================
+    // ==================== USER FUNCTIONS ====================
+    
     async function scanDatabaseProjects() {
         if(!currentUserId) return;
         showProgress(true);
-        log("🔍 جاري تحميل مشاريعك السحابية...");
+        log(`🔍 جاري سحب مشاريعك الخاصة...`);
         try {
             const response = await fetch(`${API_URL}/get-projects?user_id=${encodeURIComponent(currentUserId)}`);
             const data = await response.json();
             if(data.success) {
-                projectsCache = data.projects || [];
+                projectsCache = data.projects;
                 renderProjects();
                 document.getElementById('projectCount').innerText = projectsCache.length;
-                log(`✅ تم تحميل ${projectsCache.length} مشروع`, false, true);
+                log(`✅ تم تحميل ${projectsCache.length} مشروع خاص بك`);
             } else throw new Error(data.error);
         } catch(e) { log(`❌ فشل تحميل المشاريع: ${e.message}`, true); }
         showProgress(false);
@@ -762,170 +516,157 @@
     
     function renderProjects() {
         const grid = document.getElementById('projectsGrid');
-        if(!projectsCache.length) {
-            grid.innerHTML = '<div class="empty-state">✨ ليس لديك أي مشاريع بعد<br><small>قم بإنشاء مشروع جديد من محرر الأكواد</small></div>';
-            return;
-        }
+        if(!projectsCache.length) { grid.innerHTML = '<div class="empty-state">ليس لديك أي مشاريع سحابية حتى الآن 🚀<br><br><small style="color:var(--text-muted)">قم بكتابة كود جديد واضغط على "حفظ ونشر"</small></div>'; return; }
         grid.innerHTML = projectsCache.map(p => `
             <div class="project-card">
                 <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
                     <span class="project-name">📦 ${escapeHtml(p.name)}</span>
-                    <span style="color:var(--success); font-size:0.75rem;">🟢 منشور</span>
+                    <span style="color:var(--success); font-size:0.8rem;">🟢 نشط</span>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button class="project-btn" onclick="editProject('${p.name}')">✏️ تعديل</button>
-                    <button class="project-btn" style="border-color:var(--success);" onclick="window.open('${p.url}')">🔗 معاينة</button>
+                    <button class="project-btn" style="border-color:var(--success); color:var(--success);" onclick="window.open('${p.url}')">🔗 زيارة</button>
                 </div>
             </div>
         `).join('');
     }
     
-    window.editProject = function(projectName) {
-        const project = projectsCache.find(p => p.name === projectName);
-        if(!project) return;
-        document.getElementById('projectName').value = project.name;
+    window.editProject = function(pid) {
+        const p = projectsCache.find(x => x.name === pid);
+        if(!p) return;
+        document.getElementById('projectName').value = p.name;
         try {
-            const parsedCode = JSON.parse(project.code);
-            if(typeof parsedCode === 'object' && parsedCode !== null) {
-                currentFiles = parsedCode;
-            } else {
-                currentFiles = { "index.js": project.code };
-            }
-        } catch(e) {
-            currentFiles = { "index.js": project.code };
-        }
+            const parsedCode = JSON.parse(p.code);
+            if(typeof parsedCode === 'object') loadFilesFromCodeObject(parsedCode);
+            else loadFilesFromCodeObject({ "index.js": p.code });
+        } catch(e) { loadFilesFromCodeObject({ "index.js": p.code }); }
         
-        // Load environment variables
-        const envContainer = document.getElementById('envVarsContainer');
-        envContainer.innerHTML = '';
-        if(project.envVars && typeof project.envVars === 'object') {
-            Object.entries(project.envVars).forEach(([k, v]) => addEnvRow(k, v));
-        } else {
-            addEnvRow('', '');
-        }
+        const envC = document.getElementById('envVarsContainer');
+        envC.innerHTML = '';
+        if(Object.keys(p.envVars).length) Object.entries(p.envVars).forEach(([k,v]) => addEnvRow(k,v));
+        else addEnvRow('', '');
         
-        currentEditProject = projectName;
-        openTabs = Object.keys(currentFiles).slice(0, 5);
-        activeTab = openTabs[0] || Object.keys(currentFiles)[0];
-        renderFileTree();
-        renderTabs();
-        if(activeTab && currentFiles[activeTab]) document.getElementById('codeInput').value = currentFiles[activeTab];
-        updateLineNumbers();
-        
-        document.getElementById('deployBtn').innerHTML = '🔄 تحديث المشروع';
+        currentEditProject = pid;
+        document.getElementById('deployBtn').innerHTML = '🔄 رفع التحديث';
         document.getElementById('deployBtn').classList.add('update-mode');
         document.getElementById('cancelEditBtn').style.display = 'block';
-        document.getElementById('editModeBadge').innerText = ` ✏️ تعديل: ${projectName}`;
+        document.getElementById('editModeBadge').innerText = ` [تعديل: ${pid}]`;
         document.querySelector('[data-tab="editor"]').click();
-        log(`✏️ جاري تعديل المشروع: ${projectName}`, false, true);
+        log(`✅ تم تجهيز مشروع [${pid}] للتعديل`);
     };
     
     function cancelEditMode() {
         currentEditProject = null;
         document.getElementById('projectName').value = '';
-        initializeDefaultFiles();
+        loadFilesFromCodeObject({ "index.js": "// نجم كلاود v18.5\nconsole.log('Hello Najm Cloud');" });
         document.getElementById('envVarsContainer').innerHTML = '';
-        addEnvRow('API_KEY', '');
+        addEnvRow('BOT_TOKEN', '');
         document.getElementById('deployBtn').innerHTML = '🚀 حفظ ونشر المشروع';
         document.getElementById('deployBtn').classList.remove('update-mode');
         document.getElementById('cancelEditBtn').style.display = 'none';
         document.getElementById('editModeBadge').innerText = '';
-        log("✖️ تم إلغاء وضع التعديل");
+        log("✖️ تم إلغاء التعديل");
     }
     
     async function performDeploy() {
-        if(!currentUserId) return alert("يرجى تسجيل الدخول أولاً");
+        if(!currentUserId) return alert("حدث خطأ في الجلسة، يرجى تسجيل الدخول مجدداً");
         
-        const projectName = document.getElementById('projectName').value.trim();
+        const pid = document.getElementById('projectName').value.trim();
         saveCurrentFileContent();
         const codeString = getFilesAsCodeString();
         
-        if(!projectName) {
-            log("❌ يرجى إدخال اسم المشروع", true);
-            return;
-        }
+        if(!pid) return alert("أكمل اسم المشروع المطلوب!");
         
-        const envVars = {};
+        const vars = {};
         document.querySelectorAll('.env-item').forEach(item => {
-            const key = item.querySelector('.env-key').value.trim();
-            const value = item.querySelector('.env-value').value;
-            if(key) envVars[key] = value;
+            const k = item.querySelector('.env-key').value.trim();
+            const v = item.querySelector('.env-value').value;
+            if(k) vars[k] = v;
         });
         
         showProgress(true);
         document.getElementById('deployBtn').disabled = true;
-        log(`🚀 جاري نشر المشروع "${projectName}"...`);
+        log(`🚀 جاري الإرسال والمصادقة لحسابك...`);
         
         try {
             const response = await fetch(`${API_URL}/deploy`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    user_id: currentUserId, 
-                    project_name: projectName, 
-                    code: codeString, 
-                    environment_variables: envVars 
-                })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: currentUserId, project_name: pid, code: codeString, environment_variables: vars })
             });
             const result = await response.json();
             if(response.ok && result.success) {
-                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(currentUserId)}/${encodeURIComponent(projectName)}`;
-                log(`✅ تم النشر بنجاح!`, false, true);
-                document.getElementById('deployResult').innerHTML = `<div style="padding:12px; background:rgba(0,255,153,0.1); border:1px solid var(--success); border-radius:12px;">
-                    <strong>✅ تم النشر!</strong><br>
-                    <a href="${finalUrl}" target="_blank" style="color:var(--success); word-break:break-all;">${finalUrl}</a>
-                </div>`;
-                await scanDatabaseProjects();
+                log('✅ تم الحفظ والنشر بنجاح!', false, true);
+                const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(currentUserId)}/${encodeURIComponent(pid)}`;
+                document.getElementById('deployResult').innerHTML = `<div style="padding:10px; background:rgba(0,255,153,0.1); border:1px solid var(--success); border-radius:10px;">الرابط:<br><a href="${finalUrl}" target="_blank" style="color:var(--success);">${finalUrl}</a></div>`;
+                const existing = projectsCache.findIndex(x => x.name === pid);
+                const projObj = { name: pid, code: codeString, envVars: vars, url: finalUrl };
+                if(existing !== -1) projectsCache[existing] = projObj;
+                else projectsCache.unshift(projObj);
+                renderProjects();
+                document.getElementById('projectCount').innerText = projectsCache.length;
                 if(currentEditProject) cancelEditMode();
-            } else throw new Error(result.error || "فشل النشر");
-        } catch(e) { 
-            log(`❌ فشل النشر: ${e.message}`, true);
-            document.getElementById('deployResult').innerHTML = `<div style="padding:12px; background:rgba(255,51,102,0.1); border:1px solid var(--danger); border-radius:12px; color:var(--danger);">
-                ❌ خطأ: ${e.message}
-            </div>`;
-        }
+            } else throw new Error(result.error || "خطأ");
+        } catch(e) { log(`❌ فشل: ${e.message}`, true); }
         document.getElementById('deployBtn').disabled = false;
         showProgress(false);
     }
     
-    function addEnvRow(key = '', value = '') {
-        const container = document.getElementById('envVarsContainer');
+    function addEnvRow(k='', v='') {
         const div = document.createElement('div');
         div.className = 'env-item';
-        div.innerHTML = `
-            <input type="text" class="env-key" placeholder="KEY" value="${escapeHtml(key)}" dir="ltr" style="font-family:monospace;">
-            <input type="text" class="env-value" placeholder="VALUE" value="${escapeHtml(value)}" dir="ltr" style="font-family:monospace;">
-            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2rem;">✖</button>
-        `;
-        container.appendChild(div);
+        div.innerHTML = `<input type="text" class="env-key" placeholder="KEY" value="${escapeHtml(k)}" dir="ltr"><input type="text" class="env-value" placeholder="VALUE" value="${escapeHtml(v)}" dir="ltr"><button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--danger); cursor:pointer;">✖</button>`;
+        document.getElementById('envVarsContainer').appendChild(div);
     }
     
-    // ==================== INITIALIZATION ====================
+    // ==================== INIT ====================
     window.onload = () => {
         const savedUid = localStorage.getItem('najm_uid');
         const savedUname = localStorage.getItem('najm_uname');
         
+        // إذا كان المستخدم مسجل دخوله من قبل، افتح له اللوحة مباشرة
         if(savedUid && savedUname) {
             activateUserSession(savedUid, savedUname);
         } else {
+            // غير كذا، خله على شاشة تسجيل الدخول
             document.getElementById('loginScreen').style.display = 'flex';
         }
         
-        addEnvRow('API_KEY', '');
-        addEnvRow('SECRET_TOKEN', '');
-        
-        // Tab switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-                btn.classList.add('active');
-                const tabName = btn.dataset.tab;
-                document.getElementById(tabName + 'Tab').style.display = 'block';
-                if(tabName === 'projects') scanDatabaseProjects();
-            };
-        });
+        addEnvRow('BOT_TOKEN', '');
+        loadFilesFromCodeObject({ "index.js": `// نجم كلاود IDE v18.5
+console.log("Najm Cloud Enterprise Active");
+
+async function handler(request) {
+    return new Response(JSON.stringify({
+        message: "مرحباً من مساحتك السحابية!",
+        version: "18.5",
+        status: "active"
+    }), {
+        headers: { "Content-Type": "application/json" }
+    });
+}` });
+        updateLineNumbers();
     };
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab + 'Tab').style.display = 'block';
+        };
+    });
 </script>
 </body>
 </html>
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+      <loc>https://najm-server.60jrhwm.workers.dev/</loc>
+      <lastmod>2026-03-29</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>1.0</priority>
+   </url>
+</urlset>
