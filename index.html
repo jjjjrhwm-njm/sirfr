@@ -351,15 +351,23 @@
             transition: all 0.2s; 
         }
         .project-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0, 210, 255, 0.1); }
-        .deploy-link { 
-            color: var(--success); 
-            text-decoration: none; 
+        
+        /* تحسين مظهر الرابط القابل للضغط */
+        .clickable-link {
+            color: var(--success);
+            text-decoration: none;
             word-break: break-all;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: rgba(0, 255, 153, 0.1);
         }
-        .deploy-link:hover { 
-            text-decoration: underline; 
+        .clickable-link:hover {
+            text-decoration: underline;
             text-shadow: 0 0 8px rgba(0, 255, 153, 0.5);
+            background: rgba(0, 255, 153, 0.2);
+            transform: translateX(4px);
         }
     </style>
 </head>
@@ -480,10 +488,10 @@
     // ==================== STATE MANAGEMENT ====================
     let projectsCache = [];
     let currentEditProject = null;
-    let currentFiles = {};      // VFS: path -> content
+    let currentFiles = {};      // ✅ VFS: object with paths as keys (مثل: 'src/app.js')
     let openTabs = [];
     let activeTab = null;
-    let currentUserId = null;   // ✅ يبدأ بـ null، يتم تعيينه فقط من Google
+    let currentUserId = null;   // ✅ يبدأ بـ null، يتم تعيينه فقط من Google ولا يعود أبداً لـ 'Gded'
     
     const API_URL = "https://najm-backend.60jrhwm.workers.dev";
     
@@ -510,7 +518,7 @@
     }
 
     function activateUserSession(uid, uname) {
-        currentUserId = uid;  // ✅ تعيين المعرف الحقيقي من Google
+        currentUserId = uid;  // ✅ تعيين المعرف الحقيقي من Google - لن يعود أبداً لقيمة افتراضية
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainWorkspace').style.display = 'block';
         document.getElementById('userNameDisplay').innerText = `أهلاً، ${escapeHtml(uname)}`;
@@ -584,6 +592,7 @@
     
     // ==================== VFS & FILE SYSTEM ====================
     function initializeDefaultFiles() {
+        // ✅ currentFiles هو كائن يحمل المسارات كمفاتيح
         currentFiles = {
             'index.js': '// نجم كلاود IDE v19.0\nconsole.log("Welcome to Najm Cloud!");\n\nasync function handler(request) {\n    return new Response(JSON.stringify({\n        message: "مرحباً من منصة نجم كلاود!",\n        version: "19.0",\n        status: "active"\n    }), {\n        headers: { "Content-Type": "application/json" }\n    });\n}',
             'style.css': '/* أنماط CSS */\nbody {\n    font-family: system-ui;\n    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n    color: white;\n}',
@@ -626,7 +635,6 @@
             for(const key of sorted) {
                 const item = obj[key];
                 if(item.type === 'folder') {
-                    const folderId = `folder_${Date.now()}_${Math.random()}`;
                     html += `<div class="folder-item">
                         <div class="folder-header" onclick="toggleFolder(this)">
                             <span>📁 ${escapeHtml(item.name)}</span>
@@ -753,7 +761,7 @@
     };
     
     function getFilesAsCodeString() {
-        // ✅ تحويل كائن الملفات بالكامل إلى JSON string
+        // ✅ إرجاع كائن currentFiles بالكامل كـ JSON string
         return JSON.stringify(currentFiles);
     }
     
@@ -858,7 +866,7 @@
         
         const projectName = document.getElementById('projectName').value.trim();
         saveCurrentFileContent();
-        const codeString = getFilesAsCodeString();
+        const codeString = getFilesAsCodeString(); // ✅ إرسال كائن الملفات بالكامل كـ JSON
         
         if(!projectName) {
             log("❌ يرجى إدخال اسم المشروع", true);
@@ -892,16 +900,18 @@
                 // ✅ إنشاء الرابط باستخدام currentUserId الحقيقي (من Google)
                 const finalUrl = `https://vercelseifr.vercel.app/${encodeURIComponent(currentUserId)}/${encodeURIComponent(projectName)}`;
                 log(`✅ تم النشر بنجاح!`, false, true);
-                log(`🌐 الرابط: ${finalUrl}`, false, false);
                 
-                // ✅ عرض الرابط القابل للضغط
+                // ✅ إضافة الرابط القابل للضغط في السجل أيضاً
+                log(`🌐 رابط المعاينة: ${finalUrl}`, false, false);
+                
+                // ✅ عرض الرابط القابل للضغط في منطقة النتائج
                 document.getElementById('deployResult').innerHTML = `
                     <div style="padding:12px; background:rgba(0,255,153,0.1); border:1px solid var(--success); border-radius:12px;">
                         <strong>✅ تم النشر بنجاح!</strong><br>
-                        <a href="${finalUrl}" target="_blank" class="deploy-link" style="color:var(--success); word-break:break-all; text-decoration:none;">
+                        <a href="${finalUrl}" target="_blank" class="clickable-link">
                             🔗 ${finalUrl}
                         </a>
-                        <br><small style="color:var(--text-muted);">انقر على الرابط لفتح المعاينة في تبويب جديد</small>
+                        <br><small style="color:var(--text-muted);">✨ انقر على الرابط لفتح المعاينة في تبويب جديد</small>
                     </div>
                 `;
                 await scanDatabaseProjects();
@@ -937,7 +947,7 @@
         const savedUname = localStorage.getItem('najm_uname');
         
         if(savedUid && savedUname) {
-            // ✅ استعادة الجلسة باستخدام المعرف الحقيقي
+            // ✅ استعادة الجلسة باستخدام المعرف الحقيقي من Google
             activateUserSession(savedUid, savedUname);
         } else {
             document.getElementById('loginScreen').style.display = 'flex';
