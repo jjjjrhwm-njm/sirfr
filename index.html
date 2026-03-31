@@ -861,26 +861,31 @@
         }
     }
     
+    // ✅ التعديل الأساسي: استخدام p.code و p.vars من الباكند
     window.editProject = function(projectName) {
         const project = projectsCache.find(p => p.name === projectName);
         if(!project) return;
         document.getElementById('projectName').value = project.name;
+        
+        // معالجة الكود (code) المخزن كـ JSON string
         try {
             const parsedCode = JSON.parse(project.code);
             if(typeof parsedCode === 'object' && parsedCode !== null) {
                 currentFiles = parsedCode;
             } else {
+                // إذا لم يكن كائناً، نعامله كملف واحد
                 currentFiles = { "index.js": project.code };
             }
         } catch(e) {
+            // في حالة فشل التحليل، نعتبره محتوى ملف واحد
             currentFiles = { "index.js": project.code };
         }
         
-        // Load environment variables
+        // تعبئة المتغيرات البيئية من project.vars
         const envContainer = document.getElementById('envVarsContainer');
         envContainer.innerHTML = '';
-        if(project.envVars && typeof project.envVars === 'object') {
-            Object.entries(project.envVars).forEach(([k, v]) => addEnvRow(k, v));
+        if(project.vars && typeof project.vars === 'object') {
+            Object.entries(project.vars).forEach(([k, v]) => addEnvRow(k, v));
         } else {
             addEnvRow('', '');
         }
